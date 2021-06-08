@@ -1,0 +1,1 @@
+Git doesn't keep track of empty folder, hence this file to initialize the folder creation and hold it
