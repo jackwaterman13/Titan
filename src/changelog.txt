@@ -1,0 +1,40 @@
+2021-06-07
+Directory changes
+=================
+- Folders moved:
+    a) src: titan: experiments -> src: experiments
+    b) src: titan: interfaces -> src: interfaces
+    C) src: titan: testing -> src: testing
+- New sub-folders in:
+    a) interfaces: given & own
+    b) testing: blackbox & glassbox
+    c) titan: math, solvers & utility
+
+File changes
+============
+- New files:
+    a) src: interfaces: EngineInterface, FileManagerInterface, FxObjectInterface & RocketInterface
+    b) src: titan: math: Function
+    c) src: titan: solvers: Euler, Kutta & Verlet
+    d) src: titan: utility: Rate
+- Files deleted:
+    a) src: testing: all files except folders
+    b) src: titan: physics: Method, ODEFunction, ODESolver & ProbeSimulator
+- Files moved:
+    a) src: titan: physics: Vector3d -> src: titan: math: Vector3d
+    b) src: titan: physics: Planet & Rocket -> src: titan: utility: Planet & Rocket
+- Files rewritten:
+    a) src: titan: physics: Engine, Newton & State
+    b) src: titan: math: Vector3d
+    c) src: titan: utility: planet
+- Temporarily empty:
+    a) src: titan: gui: ModeFX & ModeSwing
+    b) src: titan: physics: Engine
+
+Unfinished work
+===============
+- files:
+    a) src: interfaces: FileManagerInterface, FxObjectInterface & RocketInterface
+    b) src: titan: gui: ModeFX & ModeSwing
+- methods:
+    a) src: titan: solvers: Kutta: step()   | implementation missing
