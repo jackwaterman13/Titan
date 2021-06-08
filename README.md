@@ -1,2 +1,0 @@
-# Titan
-Group 27
