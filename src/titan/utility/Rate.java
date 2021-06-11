@@ -2,17 +2,86 @@ package titan.utility;
 
 import interfaces.given.RateInterface;
 import interfaces.given.Vector3dInterface;
+import titan.math.Vector3d;
 
 /**
  * Supportive class that holds the average dy/dt for each planet
  */
 public class Rate implements RateInterface {
-    private final Vector3dInterface[] xRoc;
-    private final Vector3dInterface[] vRoc;
+    private final Vector3dInterface[] xRateOfChange;
+    private final Vector3dInterface[] vRateOfChange;
 
-    public Rate(Vector3dInterface[] xRoc, Vector3dInterface[] vRoc){
-        this.xRoc = xRoc;
-        this.vRoc = vRoc;
+    /**
+     * Constructs a new rate-of-change dy/dt = [v, a] | dimensions: [state]/[time]
+     *
+     * @param xRateOfChange - dx/dt = v
+     * @param vRateOfChange - dv/dt = a
+     */
+    public Rate(Vector3dInterface[] xRateOfChange, Vector3dInterface[] vRateOfChange){
+        this.xRateOfChange = xRateOfChange;
+        this.vRateOfChange = vRateOfChange;
+    }
+
+    /**
+     * Addition of 2 rate-of-changes to get 1 final rate-of-change
+     *
+     * @param other - rate-of-change that needs to be added
+     * @return Result of this rate-of-change + other rate-of-change
+     */
+    public Rate add(Rate other){
+        Vector3dInterface[] xRateOfChange = other.getPosRoc();
+        Vector3dInterface[] vRateOfChange = other.getVelRoc();
+
+        Vector3dInterface[] xRocFinal = new Vector3d[this.xRateOfChange.length];
+        Vector3dInterface[] vRocFinal = new Vector3d[this.vRateOfChange.length];
+        for(int i = 0; i < xRateOfChange.length; i++){
+            xRocFinal[i] = xRateOfChange[i].add(this.xRateOfChange[i]);
+            vRocFinal[i] = vRateOfChange[i].add(this.vRateOfChange[i]);
+        }
+        return new Rate(xRocFinal, vRocFinal);
+    }
+
+    /**
+     * Scalar multiplication of rate-of-change
+     *
+     * @param scalar - weight used in multiplication
+     */
+    public Rate mul(double scalar){
+        Vector3dInterface[] xRateOfChange = new Vector3d[this.xRateOfChange.length];
+        Vector3dInterface[] vRateOfChange = new Vector3d[this.vRateOfChange.length];
+        for(int i = 0; i < xRateOfChange.length; i++){
+            xRateOfChange[i] = this.xRateOfChange[i].mul(scalar);
+            vRateOfChange[i] = this.vRateOfChange[i].mul(scalar);
+        }
+        return new Rate(xRateOfChange, vRateOfChange);
+    }
+
+    /**
+     * Scalar multiplication of rate-of-change
+     *
+     * @param scalar the double used in the multiplication step
+     * @param other  the rate-of-change used in the multiplication step
+     * @return the result of the multiplication step added to this rate-of-change,
+     * for example:
+     *       Rate a = Rate();
+     *       Rate b = Rate();
+     *       double h = 2;
+     *       ans = a.addMul(h, b);
+     *
+     * ans should be the result of: a+h*b (= a+2*b)
+     */
+    public Rate addMul(double scalar, Rate other){
+        Vector3dInterface[] xRateOfChange = other.getPosRoc();
+        Vector3dInterface[] vRateOfChange = other.getVelRoc();
+
+        Vector3dInterface[] xRocFinal = new Vector3d[this.xRateOfChange.length];
+        Vector3dInterface[] vRocFinal = new Vector3d[this.vRateOfChange.length];
+
+        for(int i = 0; i < xRateOfChange.length; i++){
+            xRocFinal[i] = this.xRateOfChange[i].addMul(scalar, xRateOfChange[i]);
+            vRocFinal[i] = this.vRateOfChange[i].addMul(scalar, vRateOfChange[i]);
+        }
+        return new Rate(xRocFinal, vRocFinal);
     }
 
     /**
@@ -21,7 +90,7 @@ public class Rate implements RateInterface {
      *
      * @return A 3-dimensional vector array containing the dx/dt for each planet.
      */
-    public Vector3dInterface[] getPosRoc(){ return xRoc; }
+    public Vector3dInterface[] getPosRoc(){ return xRateOfChange; }
 
     /**
      * Accesses the average dv/dt for each planet
@@ -29,16 +98,5 @@ public class Rate implements RateInterface {
      *
      * @return A 3-dimensional vector array containing the dv/dt for each planet.
      */
-    public Vector3dInterface[] getVelRoc(){ return vRoc; }
-
-    public RateInterface add(RateInterface other){
-        Rate r = (Rate) other;
-        Vector3dInterface[] x = r.getPosRoc();
-        Vector3dInterface[] v = r.getVelRoc();
-        for(int i = 0; i < x.length; i++){
-            x[i] = x[i].add(xRoc[i]);
-            v[i] = v[i].add(vRoc[i]);
-        }
-        return new Rate(x, v);
-    }
+    public Vector3dInterface[] getVelRoc(){ return vRateOfChange; }
 }
