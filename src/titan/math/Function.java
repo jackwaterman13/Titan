@@ -31,12 +31,12 @@ public class Function implements ODEFunctionInterface {
     public RateInterface call(double t, StateInterface y){
         State s = (State) y;
         DataInterface[] objects = s.getObjects();
-        Vector3dInterface[] dxdt = new Vector3d[objects.length];
-        Vector3dInterface[] dvdt = new Vector3d[objects.length];
+        Vector3dInterface[] xRateOfChange = new Vector3d[objects.length];
+        Vector3dInterface[] vRateOfChange = new Vector3d[objects.length];
         for(int i = 0; i < objects.length; i++){
-            dxdt[i] = objects[i].getPosition().mul(1.0 / t); // => dx/dt = v
-            dvdt[i] = objects[i].getVelocity().mul(1.0 / t); // => dv/dt = a
+            xRateOfChange[i] = objects[i].getPosition().mul(1.0 / t); // => dx/dt = v
+            vRateOfChange[i] = objects[i].getVelocity().mul(1.0 / t); // => dv/dt = a
         }
-        return new Rate(dxdt, dvdt);
+        return new Rate(xRateOfChange, vRateOfChange);
     }
 }
