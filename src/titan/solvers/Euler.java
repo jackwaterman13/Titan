@@ -21,13 +21,14 @@ public class Euler implements ODESolverInterface {
      */
 
     public StateInterface[] solve(ODEFunctionInterface f, StateInterface y0, double[] ts){
-        double tSum = 0.0;
-        for(double t : ts){ tSum = tSum + t; }
-
         StateInterface[] states = new State[ts.length];
         states[0] = y0;
 
-        for(int i = 1; i < ts.length; i++){ states[i] = step(f, tSum, states[i-1], ts[i]); }
+        double tSum = 0.0;
+        for(int i = 1; i < ts.length; i++){
+            tSum += ts[i];
+            states[i] = step(f, tSum, states[i-1], ts[i]);
+        }
         return states;
     }
 
@@ -51,7 +52,9 @@ public class Euler implements ODESolverInterface {
         else { states = new State[fit]; }
         states[0] = y0;
 
-        for(int i = 1; i < fit; i++){ states[i] = step(f, tf, states[i-1], h); }
+        for(int i = 1; i < fit; i++){
+            states[i] = step(f, i * h, states[i-1], h);
+        }
         if (fit < states.length){
             double remainingTime = tf % h;
             states[states.length - 1] = step(f, tf, states[states.length - 2], remainingTime);
@@ -72,8 +75,8 @@ public class Euler implements ODESolverInterface {
 
     public StateInterface step(ODEFunctionInterface f, double t, StateInterface y, double h){
         Rate gravityRoc = (Rate) newton.getRoc(y, t);
-        RateInterface functionRoc = f.call(t, y);
-        RateInterface finalRoc = gravityRoc.add(functionRoc);
+        Rate functionRoc = (Rate) f.call(t, y);
+        Rate finalRoc = gravityRoc.add(functionRoc);
         return y.addMul(h, finalRoc);
     }
 }

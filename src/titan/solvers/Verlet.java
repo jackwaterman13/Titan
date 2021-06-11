@@ -19,13 +19,14 @@ public class Verlet implements ODESolverInterface {
      */
 
     public StateInterface[] solve(ODEFunctionInterface f, StateInterface y0, double[] ts){
-        double tSum = 0.0;
-        for(double t : ts){ tSum = tSum + t; }
-
         StateInterface[] states = new State[ts.length];
         states[0] = y0;
 
-        for(int i = 1; i < ts.length; i++){ states[i] = step(f, tSum, states[i-1], ts[i]); }
+        double tSum = 0.0;
+        for(int i = 1; i < ts.length; i++){
+            tSum += ts[i];
+            states[i] = step(f, tSum, states[i-1], ts[i]);
+        }
         return states;
     }
 
@@ -49,7 +50,9 @@ public class Verlet implements ODESolverInterface {
         else { states = new State[fit]; }
         states[0] = y0;
 
-        for(int i = 1; i < fit; i++){ states[i] = step(f, tf, states[i-1], h); }
+        for(int i = 1; i < fit; i++){
+            states[i] = step(f, i * h, states[i-1], h);
+        }
         if (fit < states.length){
             double remainingTime = tf % h;
             states[states.length - 1] = step(f, tf, states[states.length - 2], remainingTime);
@@ -73,7 +76,7 @@ public class Verlet implements ODESolverInterface {
         State s = (State) y;
         if (s.getPrevious() == null){
             Rate gravityRoc = (Rate) newton.getRoc(y, t);
-            RateInterface functionRoc = f.call(t, y);
+            Rate functionRoc = (Rate) f.call(t, y);
             RateInterface finalRoc = gravityRoc.add(functionRoc);
             return y.addMul(h, finalRoc);
         }
@@ -93,6 +96,7 @@ public class Verlet implements ODESolverInterface {
             }
             State next = new State(result);
             next.setPrevious(s);
+            next.setPeriod(s.getPeriod() + h);
             return next;
         }
     }
