@@ -1,0 +1,1 @@
+Git doesnt keep track of empty folders, hence we need a temp holder till we add files
