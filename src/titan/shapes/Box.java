@@ -32,14 +32,14 @@ public class Box implements ShapeInterface {
     public boolean withinShape(Vector3dInterface v){
         boolean xInBounds = false, yInBounds = false, zInBounds = false;
 
-        if (diagonal[0].getX() < v.getX() && v.getX() < diagonal[1].getX()){ xInBounds = true; }
-        else if (diagonal[0].getX() > v.getX() && v.getX() > diagonal[1].getX()){ xInBounds = true; }
+        if (diagonal[0].getX() <= v.getX() && v.getX() <= diagonal[1].getX()){ xInBounds = true; }
+        else if (diagonal[0].getX() >= v.getX() && v.getX() >= diagonal[1].getX()){ xInBounds = true; }
 
-        if (diagonal[0].getY() < v.getY() && v.getY() < diagonal[1].getY()){ yInBounds = true; }
-        else if (diagonal[0].getY() > v.getY() && v.getY() > diagonal[1].getY()){ yInBounds = true; }
+        if (diagonal[0].getY() <= v.getY() && v.getY() <= diagonal[1].getY()){ yInBounds = true; }
+        else if (diagonal[0].getY() >= v.getY() && v.getY() >= diagonal[1].getY()){ yInBounds = true; }
 
-        if (diagonal[0].getZ() < v.getZ() && v.getZ() < diagonal[1].getZ()){ zInBounds = true; }
-        else if (diagonal[0].getZ() > v.getZ() && v.getZ() > diagonal[1].getZ()){ zInBounds = true; }
+        if (diagonal[0].getZ() <= v.getZ() && v.getZ() <= diagonal[1].getZ()){ zInBounds = true; }
+        else if (diagonal[0].getZ() >= v.getZ() && v.getZ() >= diagonal[1].getZ()){ zInBounds = true; }
 
         return xInBounds && yInBounds && zInBounds;
     }
