@@ -3,10 +3,11 @@ package titan.utility;
 
 import interfaces.given.Vector3dInterface;
 import interfaces.own.DataInterface;
+import interfaces.own.GuiObjectInterface;
 
-public class Planet implements DataInterface {
+public class Planet implements DataInterface, GuiObjectInterface {
     String name;
-    double mass, radius;
+    double mass = 0.0, radius = 0.0;
     Vector3dInterface position, velocity, gravity;
 
     /**
@@ -24,11 +25,11 @@ public class Planet implements DataInterface {
      * @param v - the velocity this planet has
      */
     public Planet(String name, double mass, double radius, Vector3dInterface x, Vector3dInterface v){
-        this.name = name;
-        this.mass = mass;
+        setName(name);
+        setMass(mass);
+        setPosition(x);
+        setVelocity(v);
         this.radius = radius;
-        position = x;
-        velocity = v;
     }
 
     /**
@@ -146,4 +147,21 @@ public class Planet implements DataInterface {
                 " }"
                 ;
     }
+
+    /**
+     * Resizes the position vector to the desired length.
+     *
+     * @param l - the length the vector should have
+     * @return A rescaled vector to the length l
+     */
+    public Vector3dInterface resizePosition(double l){
+        return position.mul(l / position.norm());
+    }
+
+    /**
+     * Accesses the radius of the planets.
+     *
+     * @return A double != 0.0 if a radius was specified in the initial data file.
+     */
+    public double getRadius(){ return radius; }
 }
