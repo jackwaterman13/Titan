@@ -22,7 +22,44 @@ public class FunctionTest {
     /**
      * Tests dy/dt = [dx/dt = 0/dt = 0, dv/dt = 0/dt = 0]
      */
-    @Test public void testZero(){
+    @Test public void testEquationZero(){
+        Function func = new Function();
+        Vector3dInterface u = new Vector3d();
+        Vector3dInterface result = func.equation(2, u);
+
+        assertEquals(0.0, result.getX());
+        assertEquals(0.0, result.getY());
+        assertEquals(0.0, result.getZ());
+    }
+
+    /**
+     * Tests dy/dt = [dx/dt > 0, dv/dt > 0]
+     */
+    @Test public void testEquationPositive(){
+        Function func = new Function();
+        Vector3dInterface u = new Vector3d(1.0, 0.0, 0.0);
+        Vector3dInterface result = func.equation(2, u);
+
+        assertEquals(0.5, result.getX());
+        assertEquals(0.0, result.getY());
+        assertEquals(0.0, result.getZ());
+
+    }
+
+    /**
+     * Tests dy/dt = [dx/dt < 0, dv/dt < 0]
+     */
+    @Test public void testEquationNegative(){
+        Function func = new Function();
+        Vector3dInterface u = new Vector3d(-1.0, 0.0, 0.0);
+        Vector3dInterface result = func.equation(2, u);
+
+        assertEquals(-0.5, result.getX());
+        assertEquals(0.0, result.getY());
+        assertEquals(0.0, result.getZ());
+    }
+
+    @Test public void testCallZero(){
         ODEFunctionInterface func = new Function();
         DataInterface data = new Planet();
         Vector3dInterface position = new Vector3d(0.0, 0.0, 0.0);
@@ -47,10 +84,7 @@ public class FunctionTest {
         assertEquals(0.0, a.getZ());
     }
 
-    /**
-     * Tests dy/dt = [dx/dt > 0, dv/dt > 0]
-     */
-    @Test public void testPositive(){
+    @Test public void testCallPositive(){
         ODEFunctionInterface func = new Function();
         DataInterface data = new Planet();
         Vector3dInterface pos = new Vector3d(1.0, 0.0, 0.0);
@@ -74,10 +108,7 @@ public class FunctionTest {
         assertEquals(0.0, a.getZ());
     }
 
-    /**
-     * Tests dy/dt = [dx/dt < 0, dv/dt < 0]
-     */
-    @Test public void testNegative(){
+    @Test public void testCallNegative(){
         ODEFunctionInterface func = new Function();
         DataInterface data = new Planet();
         Vector3dInterface pos = new Vector3d(-1.0, 0.0, 0.0);
