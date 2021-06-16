@@ -1,0 +1,12 @@
+Source : https://pds-atmospheres.nmsu.edu/data_and_services/atmospheres_data/Huygens/access_dwe.html
+
+This dataset contains data from the Huygens Doppler Wind Experiment (DWE) obtained during the Huygens Mission at Titan.
+
+First Column : Huygens local time, reconstructed from Earth Received Time of the corresponding DWE
+Doppler sample and the one-way light time between the receiving antenna and Titan.
+
+Second Column : Huygens altitude above Titan's surface (source DTWG, altitude is defined as radial distance from center of Titan - 2575 km)
+
+Third Column : Huygens zonal wind speed (positive = eastward)
+
+Fourth Column : ZONAL WIND SPEED ERROR, Possible systematic error of zonal speed due to initial Huygens delivery error
