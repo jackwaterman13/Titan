@@ -1,3 +1,4 @@
+package interfaces;
 /*
  * @author Pieter Collins, Christof Seiler, Katerina Stankova, Nico Roos, Katharina Schueller
  * @version 0.99.0
@@ -5,15 +6,11 @@
  * This interface serves as the API for students in phase 1.
  */
 
-package interfaces.given;
-
-
-/**
+/*
  * A class for solving a general differential equation dy/dt = f(t,y)
  *     y(t) describes the state of the system at time t
  *     f(t,y(t)) defines the derivative of y(t) with respect to time t
  */
-
 public interface ODESolverInterface {
 
     /**
@@ -24,7 +21,6 @@ public interface ODESolverInterface {
      * @param   ts      the times at which the states should be output, with ts[0] being the initial time
      * @return  an array of size ts.length with all intermediate states along the path
      */
-
     public StateInterface[] solve(ODEFunctionInterface f, StateInterface y0, double[] ts);
 
     /**
@@ -37,7 +33,6 @@ public interface ODESolverInterface {
      * @param   h       the size of step to be taken
      * @return  an array of size round(tf/h)+1 including all intermediate states along the path
      */
-
     public StateInterface[] solve(ODEFunctionInterface f, StateInterface y0, double tf, double h);
 
     /**
@@ -49,6 +44,5 @@ public interface ODESolverInterface {
      * @param   h   the step size
      * @return  the new state after taking one step
      */
-
     public StateInterface step(ODEFunctionInterface f, double t, StateInterface y, double h);
 }

@@ -1,11 +1,10 @@
-/*
+package interfaces;/*
  * @author Pieter Collins, Christof Seiler, Katerina Stankova, Nico Roos, Katharina Schueller
  * @version 0.99.0
  *
  * This interface serves as the API for students in phase 1.
  */
 
-package interfaces.given;
 
 /**
  * An interface representing the time-derivative (rate-of-change) of the state of a system.
@@ -19,4 +18,5 @@ package interfaces.given;
  * from StateInterface would then be implemented by casting the rate to Vector2d, and
  * dispatching to the addMul method taking a Vector2d.
  */
-public interface RateInterface { }
+public interface RateInterface {
+}
