@@ -25,7 +25,7 @@ public class FunctionTest {
     @Test public void testEquationZero(){
         Function func = new Function();
         Vector3dInterface u = new Vector3d();
-        Vector3dInterface result = func.equation(2, u);
+        Vector3dInterface result = func.differentiate(2, u);
 
         assertEquals(0.0, result.getX());
         assertEquals(0.0, result.getY());
@@ -38,7 +38,7 @@ public class FunctionTest {
     @Test public void testEquationPositive(){
         Function func = new Function();
         Vector3dInterface u = new Vector3d(1.0, 0.0, 0.0);
-        Vector3dInterface result = func.equation(2, u);
+        Vector3dInterface result = func.differentiate(2, u);
 
         assertEquals(0.5, result.getX());
         assertEquals(0.0, result.getY());
@@ -52,7 +52,7 @@ public class FunctionTest {
     @Test public void testEquationNegative(){
         Function func = new Function();
         Vector3dInterface u = new Vector3d(-1.0, 0.0, 0.0);
-        Vector3dInterface result = func.equation(2, u);
+        Vector3dInterface result = func.differentiate(2, u);
 
         assertEquals(-0.5, result.getX());
         assertEquals(0.0, result.getY());

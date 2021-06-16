@@ -2,9 +2,13 @@ package titan.solvers;
 
 import interfaces.given.*;
 import interfaces.own.DataInterface;
+import interfaces.own.FunctionInterface;
+import titan.math.DefaultFunction;
+import titan.math.NewtonRaphson;
 import titan.physics.Newton;
 import titan.physics.State;
 import titan.utility.Rate;
+import titan.utility.Rocket;
 
 /**
  * Class that implements Verlet integration
@@ -102,6 +106,16 @@ public class Verlet implements ODESolverInterface {
             x = x.mul(2).sub(xOld).addMul(h * h, acc); // => new pos = 2 * current pos - old pos + acc * t^2
             v = v.addMul(h, acc);
             result[i] = current[i].update(x, v);
+
+            if (result[i] instanceof Rocket){
+                FunctionInterface fx = new DefaultFunction();
+                NewtonRaphson newtonRaphson = new NewtonRaphson();
+                DataInterface titan = current[8]; // -> getting titan's information
+                Vector3dInterface distance2Titan = result[i].distance3d(titan);
+                Vector3dInterface vk = newtonRaphson.step(distance2Titan, fx);
+                Vector3dInterface finalPosRocket = result[i].getPosition().addMul(h, vk); // -> pos rocket = pos rocket + vk * step size
+                result[i].setPosition(finalPosRocket);
+            }
         }
         State next = new State(result);
         next.setPrevious(s);

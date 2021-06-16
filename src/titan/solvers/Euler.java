@@ -7,6 +7,12 @@ import titan.physics.Newton;
 import titan.physics.State;
 import titan.utility.Rate;
 
+/**
+ * Class representing Euler's method which says
+ *      y[n+1] = y[n] + h * f(t[n], y[n])
+ *      t[n+1] = t[n] + h
+ */
+
 public class Euler implements ODESolverInterface {
     final static Newton newton = new Newton();
     /**

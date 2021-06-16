@@ -5,23 +5,24 @@ import interfaces.given.RateInterface;
 import interfaces.given.StateInterface;
 import interfaces.given.Vector3dInterface;
 import interfaces.own.DataInterface;
-import interfaces.own.Equation;
+import interfaces.own.FunctionInterface;
 import titan.physics.State;
 import titan.utility.Rate;
 
 public class Function implements ODEFunctionInterface {
-    Equation equation;
+    FunctionInterface functionInterface;
 
     /**
      * Constructs a function with the default differential equation dy/dt
      */
-    public Function(){ equation = new DefaultEquation(); }
+    public Function(){ functionInterface = new DefaultFunction(); }
 
     /**
      * Constructs the function with a specified differential equation
-     * @param equation - the specified differential equation
+     *
+     * @param functionInterface - the specified differential equation
      */
-    public Function(Equation equation){ this.equation = equation; }
+    public Function(FunctionInterface functionInterface){ this.functionInterface = functionInterface; }
 
     /**
      * Calculates the average dy/dt = [v, a] for each planet
@@ -48,8 +49,8 @@ public class Function implements ODEFunctionInterface {
         Vector3dInterface[] xRateOfChange = new Vector3d[objects.length];
         Vector3dInterface[] vRateOfChange = new Vector3d[objects.length];
         for(int i = 0; i < objects.length; i++){
-            xRateOfChange[i] = equation(t, objects[i].getPosition());
-            vRateOfChange[i] = equation(t, objects[i].getVelocity());
+            xRateOfChange[i] = differentiate(t, objects[i].getPosition());
+            vRateOfChange[i] = differentiate(t, objects[i].getVelocity());
         }
         return new Rate(xRateOfChange, vRateOfChange);
     }
@@ -61,9 +62,13 @@ public class Function implements ODEFunctionInterface {
      *
      * @param t - differential time t
      * @param u - differential vector u
+     *
      * @return Vector representing result of the differential equation
      */
-    public Vector3dInterface equation(double t, Vector3dInterface u){
-        return equation.derive(t, u);
+    public Vector3dInterface differentiate(double t, Vector3dInterface u){
+        double x = functionInterface.call(t, u.getX());
+        double y = functionInterface.call(t, u.getY());
+        double z = functionInterface.call(t, u.getZ());
+        return new Vector3d(x, y, z);
     }
 }

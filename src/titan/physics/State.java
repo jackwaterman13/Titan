@@ -4,7 +4,11 @@ import interfaces.given.RateInterface;
 import interfaces.given.StateInterface;
 import interfaces.given.Vector3dInterface;
 import interfaces.own.DataInterface;
+import interfaces.own.FunctionInterface;
+import titan.math.DefaultFunction;
+import titan.math.NewtonRaphson;
 import titan.utility.Rate;
+import titan.utility.Rocket;
 
 public class State implements StateInterface, RateInterface {
 	private DataInterface[] objects;
@@ -72,6 +76,19 @@ public class State implements StateInterface, RateInterface {
 			Vector3dInterface xFinal = objects[i].getPosition().addMul(step, xRoc[i]);
 			Vector3dInterface vFinal = objects[i].getVelocity().addMul(step, vRoc[i]);
 			result[i] = objects[i].update(xFinal, vFinal);
+
+			if (objects[i] instanceof Rocket){
+				NewtonRaphson newtonRaphson = new NewtonRaphson();
+				FunctionInterface f = new DefaultFunction();
+
+				Vector3dInterface d = objects[i].distance3d(objects[8]); 	// -> g(Vk) = distance to titan = pos[titan] - pos[rocket]
+
+				if (d.norm() <= 3e8){ throw new RuntimeException("Period: " + getPeriod() + " have entered Titan's orbit"); }
+				Vector3dInterface v = newtonRaphson.step(d, f); 			// -> next velocity of the rocket
+				result[i].setVelocity(v);
+				Vector3dInterface x = v.mul(step);
+				result[i].setPosition(result[i].getPosition().add(x));
+			}
 		}
 		State nextState = new State(result);
 		nextState.setPrevious(this);

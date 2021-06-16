@@ -2,12 +2,16 @@ package titan.physics;
 
 import interfaces.given.ODESolverInterface;
 import interfaces.given.StateInterface;
+import interfaces.given.Vector3dInterface;
 import interfaces.own.DataInterface;
 import interfaces.own.EngineInterface;
 import titan.fileIO.PlanetReader;
 import titan.math.Function;
+import titan.math.Vector3d;
 import titan.solvers.Euler;
 import titan.solvers.Verlet;
+import titan.utility.Planet;
+import titan.utility.Rocket;
 
 import java.util.List;
 
@@ -29,6 +33,16 @@ public class Engine implements EngineInterface {
             reader.read();
             List<DataInterface> objects = reader.getList();
             /* Add rocket,probe etc here before the array construction to the list */
+
+            DataInterface rocket = new Rocket();
+            Planet earth = (Planet) objects.get(3);
+            Vector3dInterface xEarth = earth.getPosition();
+            Vector3dInterface xTitan = objects.get(8).getPosition();
+            Vector3dInterface d = xTitan.sub(xEarth);
+            Vector3dInterface xRocket = xEarth.add(d.mul(2 * earth.getRadius() / d.norm()));
+            rocket.setPosition(xRocket);
+            rocket.setVelocity(d.mul(30));
+            objects.add(rocket);
 
             DataInterface[] objectArr = new DataInterface[objects.size()];
             for(int i = 0; i < objects.size(); i++){ objectArr[i] = objects.get(i); }
@@ -76,7 +90,12 @@ public class Engine implements EngineInterface {
 
     public static void main(String[] args){
         Engine engine = new Engine();
-        ODESolverInterface solver = new Euler();
-        StateInterface[] y = engine.runSolver(solver, 86400, 3600);
+        ODESolverInterface solver = new Verlet();
+        StateInterface[] y = engine.runSolver(solver, 86400 * 365 * 5, 86400);
+        State s = (State) y[y.length - 1];
+        DataInterface[] objects = s.getObjects();
+        DataInterface ttn = objects[8];
+        DataInterface r = objects[objects.length - 1];
+        System.out.println("Distance to Titan left: " + r.distance(ttn));
     }
 }
