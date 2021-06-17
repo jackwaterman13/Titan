@@ -79,8 +79,6 @@ public class Euler implements ODESolverInterface {
      */
 
     public StateInterface step(ODEFunctionInterface f, double t, StateInterface y, double h){
-        Rate rateOfChange = (Rate) f.call(t, y);
-        rateOfChange = rateOfChange.add(newton.getRateOfChange(t, y));
-        return y.addMul(h, rateOfChange);
+        return y.addMul(h, f.call(t, y));
     }
 }

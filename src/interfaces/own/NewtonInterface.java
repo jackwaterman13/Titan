@@ -41,14 +41,4 @@ public interface NewtonInterface {
      * @return The acceleration obtained by dividing (calculated) net gravity with the target object's mass
      */
     Vector3dInterface acceleration(DataInterface[] environment, int i);
-
-
-    /**
-     * Calculates the dy/dt influenced by the net gravity for each object in the state
-     *
-     * @param t - differential time
-     * @param y - state to calculate the influence for
-     * @return Array containing dy/dt for each object due to gravitational influence
-     */
-    Rate getRateOfChange(double t, StateInterface y);
 }

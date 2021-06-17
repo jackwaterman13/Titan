@@ -56,24 +56,4 @@ public class Newton implements NewtonInterface {
         Vector3dInterface net = netGravity(environment, i);
         return net.mul(1.0 / m);
     }
-
-    /**
-     * Calculates the dy/dt influenced by the net gravity for each object in the state
-     *
-     * @param t - differential time
-     * @param y - state to calculate the influence for
-     * @return Array containing dy/dt for each object due to gravitational influence
-     */
-    public Rate getRateOfChange(double t, StateInterface y){
-        State s = (State) y;
-        DataInterface[] environment = s.getObjects();
-        Vector3dInterface[] xRateOfChange = new Vector3d[environment.length];
-        Vector3dInterface[] vRateOfChange = new Vector3d[environment.length];
-        for(int i = 0; i < environment.length; i++){
-            Vector3dInterface a = acceleration(environment, i);
-            xRateOfChange[i] = new Vector3d();
-            vRateOfChange[i] = a.mul(t);
-        }
-        return new Rate(xRateOfChange,vRateOfChange);
-    }
 }

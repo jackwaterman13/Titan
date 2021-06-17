@@ -4,11 +4,7 @@ import interfaces.given.RateInterface;
 import interfaces.given.StateInterface;
 import interfaces.given.Vector3dInterface;
 import interfaces.own.DataInterface;
-import interfaces.own.FunctionInterface;
-import titan.math.DefaultFunction;
-import titan.math.NewtonRaphson;
 import titan.utility.Rate;
-import titan.utility.Rocket;
 
 public class State implements StateInterface, RateInterface {
 	private DataInterface[] objects;
@@ -68,29 +64,24 @@ public class State implements StateInterface, RateInterface {
 	 * @return The new state after the update. Required to have the same class as 'this'.
 	 */
 	public StateInterface addMul(double step, RateInterface rate){
-		Rate r  = (Rate) rate;
-		Vector3dInterface[] xRoc = r.getPosRoc();
-		Vector3dInterface[] vRoc = r.getVelRoc();
-		DataInterface[] result = new DataInterface[objects.length];
+		Rate r = (Rate) rate;
+		Vector3dInterface[] v = r.getPosRoc();
+		Vector3dInterface[] a = r.getVelRoc();
+
+		DataInterface[] updated = new DataInterface[objects.length];
+		DataInterface obj;
+
+		Vector3dInterface x1, v1;
 		for(int i = 0; i < objects.length; i++){
-			Vector3dInterface xFinal = objects[i].getPosition().addMul(step, xRoc[i]);
-			Vector3dInterface vFinal = objects[i].getVelocity().addMul(step, vRoc[i]);
-			result[i] = objects[i].update(xFinal, vFinal);
+			obj = objects[i];
+			x1 = obj.getPosition().addMul(step, v[i]);
+			v1 = obj.getVelocity().addMul(step, a[i]);
+			/* Rocket statement */
 
-			if (objects[i] instanceof Rocket){
-				NewtonRaphson newtonRaphson = new NewtonRaphson();
-				FunctionInterface f = new DefaultFunction();
-
-				Vector3dInterface d = objects[i].distance3d(objects[8]); 	// -> g(Vk) = distance to titan = pos[titan] - pos[rocket]
-
-				if (d.norm() <= 3e8){ throw new RuntimeException("Period: " + getPeriod() + " have entered Titan's orbit"); }
-				Vector3dInterface v = newtonRaphson.step(d, f); 			// -> next velocity of the rocket
-				result[i].setVelocity(v);
-				Vector3dInterface x = v.mul(step);
-				result[i].setPosition(result[i].getPosition().add(x));
-			}
+			updated[i] = obj.update(x1, v1);
 		}
-		State nextState = new State(result);
+
+		State nextState = new State(updated);
 		nextState.setPrevious(this);
 		nextState.setPeriod(getPeriod() + step);
 		return nextState;

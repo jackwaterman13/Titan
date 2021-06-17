@@ -24,6 +24,5 @@ public interface ODEFunctionInterface {
      * @return  The average rate-of-change over the time-step. Has dimensions of [state]/[time]. 
      */
 
-
     public RateInterface call(double t, StateInterface y);
 }

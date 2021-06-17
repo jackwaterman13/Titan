@@ -131,12 +131,10 @@ public class ModeSwing implements GuiInterface, SwingInterface {
         DataInterface[] objects = s.getObjects();
         if (displacements == null){ displacements = new Vector3d[objects.length]; }
 
-        Vector3dInterface center = objects[0].getPosition();
-
         int radius = 30;
         for(int i = 0; i < objects.length; i++){
-            DataInterface d = objects[i];
-            displacements[i] = d.getVelocity();
+            GuiObjectInterface d = (Planet) objects[i];
+            displacements[i] = d.resizePosition(60 * i);
             System.out.println(d.getName() + " | position: " + displacements[i].toString());
 
             int xTopLeft = (int) displacements[i].getX() + resolution.width / 2 - radius;

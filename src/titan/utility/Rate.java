@@ -12,7 +12,7 @@ public class Rate implements RateInterface {
     private final Vector3dInterface[] vRateOfChange;
 
     /**
-     * Constructs a new rate-of-change dy/dt = [v, a] | dimensions: [state]/[time]
+     * Constructs a new rate-of-change dy/dt = [v, a]
      *
      * @param xRateOfChange - dx/dt = v
      * @param vRateOfChange - dv/dt = a
@@ -62,13 +62,6 @@ public class Rate implements RateInterface {
      * @param scalar the double used in the multiplication step
      * @param other  the rate-of-change used in the multiplication step
      * @return the result of the multiplication step added to this rate-of-change,
-     * for example:
-     *       Rate a = Rate();
-     *       Rate b = Rate();
-     *       double h = 2;
-     *       ans = a.addMul(h, b);
-     *
-     * ans should be the result of: a+h*b (= a+2*b)
      */
     public Rate addMul(double scalar, Rate other){
         Vector3dInterface[] xRateOfChange = other.getPosRoc();
@@ -88,7 +81,7 @@ public class Rate implements RateInterface {
      * Accesses the average dx/dt for each planet
      * Array is ordered according to the order of the objects in the state class
      *
-     * @return A 3-dimensional vector array containing the dx/dt for each planet.
+     * @return A 3-dimensional vector array containing the dx/dt = v for each planet.
      */
     public Vector3dInterface[] getPosRoc(){ return xRateOfChange; }
 
@@ -96,7 +89,7 @@ public class Rate implements RateInterface {
      * Accesses the average dv/dt for each planet
      * Array is ordered according to the order of the objects in the state class
      *
-     * @return A 3-dimensional vector array containing the dv/dt for each planet.
+     * @return A 3-dimensional vector array containing the dv/dt = a for each planet.
      */
     public Vector3dInterface[] getVelRoc(){ return vRateOfChange; }
 }
