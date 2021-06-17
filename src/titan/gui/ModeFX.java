@@ -25,7 +25,7 @@ import javafx.scene.shape.Sphere;
 import javafx.scene.transform.Transform;
 import javafx.scene.transform.Translate;
 import javafx.stage.Stage;
-import titan.physics.Engine;
+import titan.simulators.StateSimulator;
 import titan.physics.State;
 import titan.solvers.Euler;
 import titan.utility.Planet;
@@ -33,7 +33,7 @@ import titan.utility.Planet;
 public class ModeFX extends Application implements GuiInterface {
     private final Dimension resolution = new Dimension(1200, 720);
 
-    private static  Engine engine; // Singleton
+    private static StateSimulator engine; // Singleton
     private State[] states;
     private int index;
 
@@ -92,7 +92,7 @@ public class ModeFX extends Application implements GuiInterface {
      * @param h - the step size
      */
     public void prepareApplication(ODESolverInterface solver, double tf, double h){
-        if (engine == null){ engine = new Engine(); }
+        if (engine == null){ engine = new StateSimulator(); }
         collectStates(solver, tf, h);
     }
 

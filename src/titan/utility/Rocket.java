@@ -46,7 +46,7 @@ public class Rocket extends Planet {
     final static double mass_shuttle = 7.8e4;
     final static double mass_lander  = 6e3;
     static double mass_spent;
-    double mass_fuel;
+    double mass_fuel = 6e5;
 
     final double thrust_max = 3e7;
     final double v_exhaust = 4e3;
@@ -110,6 +110,7 @@ public class Rocket extends Planet {
         Vector3dInterface dv = v.sub(getVelocity());
         return getMass() / Math.exp(dv.norm() / v_exhaust);
     }
+    public double getFuel(){ return mass_fuel; }
 
     @Override
     public double getMass() { return mass_shuttle + mass_lander + mass_fuel; }

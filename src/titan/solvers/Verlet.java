@@ -2,8 +2,10 @@ package titan.solvers;
 
 import interfaces.given.*;
 import interfaces.own.DataInterface;
+import titan.math.NewtonRaphson;
 import titan.physics.Newton;
 import titan.physics.State;
+import titan.utility.Rocket;
 
 /**
  * Class that implements Verlet integration
@@ -19,6 +21,8 @@ import titan.physics.State;
  */
 public class Verlet implements ODESolverInterface {
     Newton newton = new Newton();
+    NewtonRaphson newtonRaphson = new NewtonRaphson();
+
     /**
      * Documentation given from the interface:
      * Solve the differential equation by taking multiple steps.
@@ -101,6 +105,10 @@ public class Verlet implements ODESolverInterface {
             Vector3dInterface xOld = before[i].getPosition();
             x = x.mul(2).sub(xOld).addMul(h * h, acc); // => new pos = 2 * current pos - old pos + acc * t^2
             v = v.addMul(h, acc);
+            if (s.check4Rocket && current[i] instanceof Rocket){
+                v = newtonRaphson.step(h, y);
+                x = x.addMul(h, v);
+            }
             result[i] = current[i].update(x, v);
         }
         State next = new State(result);

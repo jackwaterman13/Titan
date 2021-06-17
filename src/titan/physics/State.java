@@ -4,13 +4,16 @@ import interfaces.given.RateInterface;
 import interfaces.given.StateInterface;
 import interfaces.given.Vector3dInterface;
 import interfaces.own.DataInterface;
+import titan.math.NewtonRaphson;
 import titan.utility.Rate;
+import titan.utility.Rocket;
 
 public class State implements StateInterface, RateInterface {
-	private DataInterface[] objects;
+	private static final NewtonRaphson newton = new NewtonRaphson();
+	private final DataInterface[] objects;
 	private State previous;
 	private double period;
-
+	public boolean check4Rocket = false;
 	/**
 	 * Constructs a state given a set of data objects.
 	 *
@@ -71,21 +74,24 @@ public class State implements StateInterface, RateInterface {
 		DataInterface[] updated = new DataInterface[objects.length];
 		DataInterface obj;
 
-		Vector3dInterface x1, v1;
+		Vector3dInterface xFinal, vFinal;
 		for(int i = 0; i < objects.length; i++){
 			obj = objects[i];
-			x1 = obj.getPosition().addMul(step, v[i]);
-			v1 = obj.getVelocity().addMul(step, a[i]);
-			/* Rocket statement */
+			xFinal = obj.getPosition().addMul(step, v[i]);
+			vFinal = obj.getVelocity().addMul(step, a[i]);
 
-			updated[i] = obj.update(x1, v1);
+			if (check4Rocket && obj instanceof Rocket){
+				vFinal = newton.step(step, this);
+			}
+
+			updated[i] = obj.update(xFinal, vFinal);
 		}
-
 		State nextState = new State(updated);
 		nextState.setPrevious(this);
 		nextState.setPeriod(getPeriod() + step);
 		return nextState;
 	}
+
 
 	public String toString(){
 		StringBuilder sb = new StringBuilder();

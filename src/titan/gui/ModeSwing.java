@@ -7,10 +7,11 @@ import interfaces.own.GuiInterface;
 import interfaces.own.GuiObjectInterface;
 import interfaces.own.SwingInterface;
 import titan.math.Vector3d;
-import titan.physics.Engine;
+import titan.simulators.ProbeSimulator;
+import titan.simulators.RocketSimulator;
+import titan.simulators.StateSimulator;
 import titan.physics.State;
 import titan.solvers.Euler;
-import titan.solvers.Verlet;
 import titan.utility.Planet;
 
 import java.awt.*;
@@ -32,8 +33,13 @@ public class ModeSwing implements GuiInterface, SwingInterface {
     private final Dimension resolution;
     private final JFrame frame;
 
-    private final Engine engine;
-    private State[] states;
+    private final StateSimulator stateSimulator;
+    private final ProbeSimulator probeSimulator;
+    private final RocketSimulator rocketSimulator;
+
+
+
+    private State[] justUniverse, probeUniverse, rocketUniverse;
     private Vector3dInterface[] displacements;
     private int index;
 
@@ -52,7 +58,9 @@ public class ModeSwing implements GuiInterface, SwingInterface {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         frame.addKeyListener(new SwingKeyListener());
-        engine = new Engine();
+        stateSimulator = new StateSimulator();
+        probeSimulator = new ProbeSimulator();
+        rocketSimulator = new RocketSimulator();
 
         if (screenResolution == null){ screenResolution = Toolkit.getDefaultToolkit().getScreenSize(); }
         this.resolution = resolution;
@@ -98,7 +106,7 @@ public class ModeSwing implements GuiInterface, SwingInterface {
      * @param h - the step size
      */
     private void collectStates(ODESolverInterface solver, double tf, double h){
-        states = (State[]) engine.runSolver(solver, tf, h);
+        justUniverse = (State[]) stateSimulator.runSolver(solver, tf, h);
         index = -1;
     }
 
@@ -109,12 +117,12 @@ public class ModeSwing implements GuiInterface, SwingInterface {
      *                                    else -> display next state if any
      */
     private void updateFrame(boolean reverse){
-        if (index - 1 < 0 && reverse || index + 1 >= states.length){ return; }
+        if (index - 1 < 0 && reverse || index + 1 >= justUniverse.length){ return; }
 
         if (reverse){ index--; }
         else{ index++; }
 
-        drawState(states[index]);
+        drawState(justUniverse[index]);
     }
 
     /**

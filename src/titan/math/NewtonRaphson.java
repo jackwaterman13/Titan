@@ -9,10 +9,20 @@ import titan.physics.State;
 import titan.solvers.Euler;
 
 public class NewtonRaphson {
-    ODESolverInterface solver = new Euler();
+    static ODESolverInterface solver;
+    static ODEFunctionInterface function;
+    static LinearAlgebra algebra;
 
-    public Vector3dInterface step(double t, double h, ODEFunctionInterface f, StateInterface y){
+    public NewtonRaphson(){
+        if (solver == null){ solver = new Euler(); }
+        if (function == null){ function = new Function(); }
+        if (algebra == null){ algebra = new LinearAlgebra(); }
+    }
+
+    public Vector3dInterface step(double h, StateInterface y){
         State s = (State) y;
+        s.check4Rocket = false;
+
         State partition;
 
         DataInterface[] objects = s.getObjects();
@@ -29,13 +39,13 @@ public class NewtonRaphson {
                 else if (j == 1){ v.setY(v.getY() + h); }       // 2nd entry of row -> y
                 else { v.setZ(v.getZ() + h); }                  // 3rd entry of row -> z
 
-                partition = (State) solver.step(f, t, y, h);
+                partition = (State) solver.step(function, 0, s, h);
 
                 objects = partition.getObjects();
 
                 d1 = objects[objects.length - 1].distance3d(objects[8]);
 
-                partition = (State) solver.step(f, t, y, h);
+                partition = (State) solver.step(function, 0, y, h);
                 objects = partition.getObjects();
 
                 d2 = objects[objects.length - 1].distance3d(objects[8]);
@@ -52,7 +62,6 @@ public class NewtonRaphson {
         }
 
         /* Inverted section */
-        LinearAlgebra algebra = new LinearAlgebra(); // -> class to use Linear Algebra methods
         D = algebra.invertedMatrix(D);
 
         /* Matrix equation Ax = b section */
@@ -60,9 +69,9 @@ public class NewtonRaphson {
 
         /* Subtraction part */
         double[] finalVars = new double[3];
-        for(int i = 0; i < 3; i++){
-            finalVars[i] = vars[i] - b[i];
-        }
+        for(int i = 0; i < 3; i++){ finalVars[i] = vars[i] - b[i]; }
+
+        s.check4Rocket = true;
         return new Vector3d(finalVars);
     }
 }
