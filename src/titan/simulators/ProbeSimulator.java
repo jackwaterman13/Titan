@@ -157,10 +157,13 @@ public class ProbeSimulator implements ProbeSimulatorInterface {
         double tf = 365 * 86400;
         double h = 86400;
         ProbeSimulator simulator = new ProbeSimulator();
-        Vector3dInterface[] course = simulator.trajectory(p0, v0, tf, h);
+        State[] course = (State[]) simulator.simulate(new Euler(), p0, v0, tf, h);
+
         for(int i = 0; i < course.length; i++){
+            DataInterface[] objects = course[i].getObjects();
             System.out.println("Time: " + h * i);
-            System.out.println("Probe position: " + course[i].toString());
+            System.out.println("Probe position: " + objects[objects.length - 1].getPosition().toString());
+            System.out.println("Distance to Titan: " + objects[objects.length - 1].distance(objects[8]));
             System.out.println();
         }
     }

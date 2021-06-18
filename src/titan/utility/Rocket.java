@@ -41,8 +41,6 @@ import titan.math.Vector3d;
 import titan.shapes.Box;
 
 public class Rocket extends Planet {
-    static DataInterface target;
-    public static boolean return2Earth = false;
     final static double mass_shuttle = 7.8e4;
     final static double mass_lander  = 6e3;
     static double mass_spent;
@@ -51,7 +49,6 @@ public class Rocket extends Planet {
     final double thrust_max = 3e7;
     final double v_exhaust = 4e3;
 
-    ShapeInterface shape = new Box();
 
     public Rocket(){ }
     public Rocket(double fuelMass, Vector3dInterface pos, Vector3dInterface vel){

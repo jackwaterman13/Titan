@@ -38,7 +38,6 @@ public class ModeSwing implements GuiInterface, SwingInterface {
     private final RocketSimulator rocketSimulator;
 
 
-
     private State[] justUniverse, probeUniverse, rocketUniverse;
     private Vector3dInterface[] displacements;
     private int index;

@@ -111,9 +111,10 @@ public class Verlet implements ODESolverInterface {
             }
             result[i] = current[i].update(x, v);
         }
-        State next = new State(result);
-        next.setPrevious(s);
-        next.setPeriod(s.getPeriod() + h);
-        return next;
+        State nextState = new State(result);
+        nextState.setPrevious(s);
+        nextState.setPeriod(s.getPeriod() + h);
+        if (s.check4Rocket){ nextState.check4Rocket = true; }
+        return nextState;
     }
 }

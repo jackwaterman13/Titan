@@ -82,6 +82,9 @@ public class State implements StateInterface, RateInterface {
 
 			if (check4Rocket && obj instanceof Rocket){
 				vFinal = newton.step(step, this);
+				System.out.println("Calculated velocity from Newton's method: " + vFinal.toString());
+				System.out.println("Required mass loss for this velocity: " + ((Rocket) obj).calculateMassLoss(vFinal));
+				System.out.println();
 			}
 
 			updated[i] = obj.update(xFinal, vFinal);
@@ -89,6 +92,7 @@ public class State implements StateInterface, RateInterface {
 		State nextState = new State(updated);
 		nextState.setPrevious(this);
 		nextState.setPeriod(getPeriod() + step);
+		if (check4Rocket){ nextState.check4Rocket = true; }
 		return nextState;
 	}
 
