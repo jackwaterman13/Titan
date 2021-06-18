@@ -152,7 +152,13 @@ public class ProbeSimulator implements ProbeSimulatorInterface {
          * - v0 norm() <= 6e5    meters/second
          */
         Vector3dInterface p0 = new Vector3d();
-        Vector3dInterface v0 = new Vector3d();
+
+        DataInterface[] y0 = InitialState.getInitialState();
+        Vector3dInterface pTitan = y0[8].getPosition();
+        Vector3dInterface pEarth = y0[3].getPosition();
+        Vector3dInterface dir = pTitan.sub(pEarth);
+
+        Vector3dInterface v0 = pTitan.mul(3000 / pTitan.norm());
 
         double tf = 365 * 86400;
         double h = 86400;
