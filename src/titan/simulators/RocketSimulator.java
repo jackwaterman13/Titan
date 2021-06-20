@@ -42,7 +42,6 @@ public class RocketSimulator {
         System.arraycopy(objects, 0, included, 0, objects.length);
         included[included.length - 1] = rocket;
         State y0 = new State(included);
-        y0.check4Rocket = true;
         return solver.solve(function, y0, ts);
     }
 
@@ -74,7 +73,6 @@ public class RocketSimulator {
         System.arraycopy(objects, 0, included, 0, objects.length);
         included[included.length - 1] = rocket;
         State y0 = new State(included);
-        y0.check4Rocket = true;
         return solver.solve(function, y0, tf, h);
     }
 

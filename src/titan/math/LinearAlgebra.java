@@ -9,6 +9,64 @@ import java.util.List;
  */
 public class LinearAlgebra {
     /**
+     * Calculates the determinant of a 2 x 2 matrix
+     *
+     * @param matrix - the involved 2 x 2 matrix
+     * @return Double representing determinant
+     */
+    public Double determinant(Double[][] matrix){
+        return matrix[0][0] * matrix[1][1] - matrix[1][0] * matrix[0][1];
+    }
+
+    /**
+     * Finds the determinant of a n x n matrix
+     *
+     * @param matrix - the involved n x n matrix
+     * @return Double representing the determinant of the n x n matrix
+     */
+    public Double findDeterminant(Double[][] matrix){
+        double det = 0.0;
+        if (matrix.length == 2 && matrix[0].length == 2){
+            det = determinant(matrix);
+        }
+        else if (matrix.length < 2 || matrix[0].length < 2){ throw new RuntimeException("Vector detected!"); }
+        else{
+            for(int i = 0; i < matrix.length; i++){
+                for(int j = 0; j < matrix[i].length; j++){
+                    Double[][] minorIJ = constructMinorIJ(matrix, i, j);
+                    det += findDeterminant(minorIJ);
+                }
+            }
+        }
+        return det;
+    }
+
+    /**
+     * Returns the ij-minor matrix of a matrix
+     *
+     * @param matrix - involved matrix whose ij minor you require
+     * @param r - the row that should not be included in the minor
+     * @param c - the column that should not be included in the minor
+     * @return Ij-minor matrix which does not contain row r and column c entries
+     */
+    public Double[][] constructMinorIJ (Double[][] matrix, int r, int c){
+        Double[][] minor = new Double[matrix.length - 1][matrix[0].length - 1];
+        int x = 0, y = 0;
+        for(int i = 0; i < matrix.length; i++){
+            if (i == r){ continue; }
+            for(int j = 0; j < matrix[i].length; j++){
+                if (j == c){ continue; }
+                minor[x][y] = matrix[i][j];
+                y++;
+                if (y == minor[0].length){
+                    x++;
+                    y = 0;
+                }
+            }
+        }
+        return minor;
+    }
+    /**
      * Method that can get the transpose of a n x n matrix.
      *
      * @param matrix - a n x n Double matrix that needs to be transposed
@@ -18,10 +76,6 @@ public class LinearAlgebra {
         Double[][] transposed = new Double[matrix.length][matrix[0].length];
         for(int i = 0; i < matrix.length; i++){
             for(int j = 0; j < matrix[i].length; j++){
-                /*  a b c         a d g
-                 *  d e f    ->   b e h
-                 *  g h i         c f i
-                 */
                 transposed[j][i] = matrix[i][j];
             }
         }
@@ -30,39 +84,26 @@ public class LinearAlgebra {
 
     /**
      * Method that gets the inverted matrix of a n x n matrix A
-     * It uses an augmented matrix A | I to find I | A^-1
-     * So its main focus is on transforming A to I
-     *
-     * Example:
-     *          a b c
-     * Say A =  d e f  , where a, e, i are non-zero
-     *          g h i
-     *
-     * Operations required to transform A -> I:
-     *          a b c    1 b c    1 b c
-     *          d e f => d e f => 0 e f
-     *          g h i    g h i    0 h i
-     *
-     *          1 b c    1 b c    1 b c
-     *          0 e f => 0 1 f => 0 1 f
-     *          0 h i    0 h i    0 0 i
-     *
-     *          1 b c    1 b c    1 b 0
-     *          0 1 f => 0 1 f => 0 1 0
-     *          0 0 i    0 0 1    0 0 1
-     *
-     *          1 b 0    1 0 0
-     *          0 1 0 => 0 1 0
-     *          0 0 1    0 0 1
-     *
-     *
+
      * @param matrix - a n x n Double matrix that needs to be inverted
-     * @return Returns the inverted matrix |
+     * @return Returns the inverted matrix A^-1
      */
     public Double[][] invertedMatrix(Double[][] matrix){
-        Double[][] A = augment(matrix, identityMatrix(matrix.length));
-        solve(A, matrix.length);
-        return separate(A, matrix[0].length)[1];
+        double det = findDeterminant(matrix);
+        Double[][] N = new Double[matrix.length][];
+        for(int i = 0; i < matrix.length; i++){
+            Double[] row = new Double[matrix[i].length];
+            for(int j = 0; j < matrix[i].length; j++){
+                row[j] = findDeterminant(constructMinorIJ(matrix, i, j));
+            }
+            N[i] = row;
+        }
+
+        N = transposeMatrix(N);
+        for(int i = 0; i < N.length; i++){
+            N[i] = scale(N[i], det);
+        }
+        return N;
     }
 
 
@@ -114,18 +155,31 @@ public class LinearAlgebra {
     }
 
     /**
-     * Mutator method that swaps two rows with each other.
+     *  Method that swaps two rows with each other.
      *
      * @param A - matrix involved in the swap
      * @param swapped - row that will be swapped
      * @param replacement - row that will acts as a replacement for the swapped row at that position
-     * @return mutated A where A[swapped] = A[replacement] and A[replacement] = A[swapped]
+     * @return B where B[i][j] = A[i][j] except B[swapped][j] = A[replacement][j] and B[replacement][j] = A[swapped][j]
      */
     public Double[][] swap(Double[][] A, int swapped, int replacement){
-        Double[] holder = A[swapped];
-        A[swapped] = A[replacement];
-        A[replacement] = holder;
-        return A;
+        Double[][] B = new Double[A.length][];
+        for(int i = 0; i < A.length; i++){
+            Double[] row = new Double[A[i].length];
+            for(int j = 0; j < A[i].length; j++){
+                if (i == swapped){
+                    row[j] = A[replacement][j];
+                }
+                else if (i == replacement){
+                    row[j] = A[swapped][j];
+                }
+                else{
+                    row[j] = A[i][j];
+                }
+            }
+            B[i] = row;
+        }
+        return B;
     }
 
     /**
@@ -164,7 +218,7 @@ public class LinearAlgebra {
         Arrays.fill(b, 0.0);
         for(int i = 0; i < A.length; i++){
             for(int j = 0; j < A[i].length; j++){
-                b[i] +=  A[i][j] * x[i];
+                b[i] +=  A[i][j] * x[j];
             }
         }
         return b;
@@ -178,18 +232,20 @@ public class LinearAlgebra {
      * @return
      */
     public Double[][] solve(Double[][] A, int n){
+        Double[][] B = new Double[A.length][];
+
         int pivot = 0;
         int lastIndex = -1;
         Double[] base = null; // row we are working with
         List<Double[]> explored = new ArrayList<>();
+
+
         while(pivot < n){
-            if (base == null){
-                for(int i = 0; i < A.length; i++){
-                    if (A[i][pivot] != 0.0 && !explored.contains(A[i])){
-                        if (i - lastIndex > 1){ swap(A, i - 1, i ); }
-                        base = scale(A[i], 1.0 / A[i][pivot]);
-                        lastIndex = i;
-                    }
+            for(int i = 0; i < A.length; i++){
+                if (A[i][pivot] != 0.0 && !explored.contains(A[i])){
+                    if (i - lastIndex > 1){ swap(A, i - 1, i ); }
+                    base = scale(A[i], 1.0 / A[i][pivot]);
+                    lastIndex = i;
                 }
             }
 
@@ -199,38 +255,13 @@ public class LinearAlgebra {
 
                 if (row[pivot] % base[pivot] == 0) { subtract(base, row); }
                 else { subtract(scale(base, row[pivot] / base[pivot]), row); }
+                System.out.println(Arrays.toString(row));
             }
             explored.add(base);
             base = null;
             pivot++;
 
         }
-        return A;
-    }
-
-    /**
-     * Separtes an augmented matrix A | B into 2 sub matrices depending on the number of columns the first matrix should have
-     *
-     * @param A - the involved augmented matrix A
-     * @param n - the number of columns first sub-matrix should have
-     * @return Array containing the split augmented matrix.
-     */
-    public Double[][][] separate(Double[][] A, int n){
-        Double[][][] matrices = new Double[2][][];
-        Double[][] matrix1 = new Double[A.length][];
-        Double[][] matrix2 = new Double[A.length][];
-
-        for(int i = 0; i < A.length; i++){
-            Double[] subRow1 = new Double[n];
-            Double[] subRow2 = new Double[A[0].length - n];
-            if (n >= 0) System.arraycopy(A[i], 0, subRow1, 0, n);
-            if (A[i].length - n >= 0) System.arraycopy(A[i], n, subRow2, 0, A[i].length - n);
-
-            matrix1[i] = subRow1;
-            matrix2[i] = subRow2;
-        }
-        matrices[0] = matrix1;
-        matrices[1] = matrix2;
-        return matrices;
+        return B;
     }
 }

@@ -9,11 +9,9 @@ import titan.utility.Rate;
 import titan.utility.Rocket;
 
 public class State implements StateInterface, RateInterface {
-	private static final NewtonRaphson newton = new NewtonRaphson();
 	private final DataInterface[] objects;
 	private State previous;
 	private double period;
-	public boolean check4Rocket = false;
 	/**
 	 * Constructs a state given a set of data objects.
 	 *
@@ -79,20 +77,11 @@ public class State implements StateInterface, RateInterface {
 			obj = objects[i];
 			xFinal = obj.getPosition().addMul(step, v[i]);
 			vFinal = obj.getVelocity().addMul(step, a[i]);
-
-			if (check4Rocket && obj instanceof Rocket){
-				vFinal = newton.step(step, this);
-				System.out.println("Calculated velocity from Newton's method: " + vFinal.toString());
-				System.out.println("Required mass loss for this velocity: " + ((Rocket) obj).calculateMassLoss(vFinal));
-				System.out.println();
-			}
-
 			updated[i] = obj.update(xFinal, vFinal);
 		}
 		State nextState = new State(updated);
 		nextState.setPrevious(this);
 		nextState.setPeriod(getPeriod() + step);
-		if (check4Rocket){ nextState.check4Rocket = true; }
 		return nextState;
 	}
 
