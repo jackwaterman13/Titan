@@ -101,20 +101,20 @@ public class ProbeSimulator implements ProbeSimulatorInterface {
         DataInterface[] objects = InitialState.getInitialState();
         Vector3dInterface xEarth = objects[3].getPosition();
         Vector3dInterface vEarth = objects[3].getVelocity();
-        Vector3dInterface vProbe = v0.sub(vEarth);
+        Vector3dInterface vProbe = new Vector3d(5431.785297590439,-29335.365587332988,0.6580991559410286);
 
         DataInterface probe = new Planet(
                 "Probe",
                 probeMass,
                 0.0,
-                p0.sub(xEarth),
+                p0.add(xEarth),
                 vProbe
         );
 
         System.out.println("Earth vel norm: " + vEarth.norm());
 
         NewtonsMethod newton = new NewtonsMethod(probe);
-        vProbe = newton.getImprovedVelocity(vProbe, tf, h, 3e8);
+        vProbe = newton.getImprovedVelocity(vProbe, tf, h, 1e8);
         probe.setVelocity(vProbe);
 
         DataInterface[] included = new DataInterface[objects.length + 1];
@@ -126,17 +126,8 @@ public class ProbeSimulator implements ProbeSimulatorInterface {
 
 
     public static void main(String[] args){
-
-
-
         Vector3dInterface p0 = new Vector3d();
-
-        DataInterface[] y0 = InitialState.getInitialState();
-        Vector3dInterface pTitan = y0[8].getPosition();
-        Vector3dInterface pEarth = y0[3].getPosition();
-        Vector3dInterface dir = pTitan.sub(pEarth);
-
-        Vector3dInterface v0 = dir.mul(3000 / dir.norm());
+        Vector3dInterface v0 = new Vector3d();
 
         double tf = 365 * 86400;
         double h = 86400;

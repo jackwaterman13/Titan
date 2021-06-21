@@ -17,7 +17,26 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class AccuracyExperiment {
-    public static void main(String[] args) {
+
+    public static void main(String[] args){
+        ODESolverInterface solver = new Euler();
+
+        /* Evaluates solver 1 to 1 to the exact solution times */
+        directEvaluation(solver);
+
+        // Delay before moving to the next task to avoid overwriting the same file
+        try{
+            Thread.sleep(3000);
+        } catch (Exception e){ e.printStackTrace(); }
+        /*
+        * Uses a step size smaller than the exact solution times to approach these times
+        * h <= 1
+        * */
+        indirectEvaluation(solver, 0.5);
+    }
+
+
+    public static void directEvaluation(ODESolverInterface solver) {
         // Accuracy function that will test the accuracy of our solvers
         ODEFunctionInterface function = new AccuracyFunction();
 
@@ -28,13 +47,11 @@ public class AccuracyExperiment {
          * y(5) = 0.237813428537,
          * y(10) = 0.110790590981
          * */
-        double[] es = {0, 0.503346658225, 0.478421766451, 0.237813428537, 0.110790590981};
+        double[] es = { 0, 0.503346658225, 0.478421766451, 0.237813428537, 0.110790590981 };
 
-        // The times at which function will be evaluated. These should be equal to the times of the exact solution
+        // The times at which function will be evaluated
         double[] ts = { 0, 1, 2, 5, 10 };
 
-        // Starting with Euler for the first  solver
-        ODESolverInterface solver = new Euler();
 
         // Preparing the initial state which should be an empty planets whose initial position and velocity will be a zero vector
         // Because the function works with a single variable, so will be using the x-axis of the position vector for our comparisons.
@@ -50,7 +67,7 @@ public class AccuracyExperiment {
         };
         StateInterface y0 = new State(objects);
 
-        // Get the results of the function
+        // Directly evaluating 1 to 1
         State[] results = (State[]) solver.solve(function, y0, ts);
 
         /*
@@ -107,21 +124,153 @@ public class AccuracyExperiment {
         }
         l[4] = sb.toString();
 
-        sb = new StringBuilder("Absolute error:" + columnSeparator);
+        sb = new StringBuilder("Absolute error%:" + columnSeparator);
         for (int i = 0; i < es.length; i++) {
-            double error = es[i] - results[i].getObjects()[0].getPosition().getX();
-            sb.append(error).append(columnSeparator);
+            double absoluteError = es[i] - results[i].getObjects()[0].getPosition().getX();
+            absoluteError = Math.abs(absoluteError);
+            sb.append(absoluteError * 100).append("%").append(columnSeparator);
         }
         l[5] = sb.toString();
 
-        sb = new StringBuilder("Accuracy:" + columnSeparator);
+        sb = new StringBuilder("Relative error%:" + columnSeparator);
         for (int i = 0; i < es.length; i++) {
-            double error = es[i] - results[i].getObjects()[0].getPosition().getX();
-            double accuracy = error / es[i] * 100;
-            if (error == 0) {
-                 accuracy = 100;
+            double absoluteError = es[i] - results[i].getObjects()[0].getPosition().getX();
+            absoluteError = Math.abs(absoluteError);
+            double relativeError = absoluteError / Math.abs(results[i].getObjects()[0].getPosition().getX());
+            if (absoluteError == 0){ relativeError = 0; }
+            sb.append(relativeError * 100).append("%").append(columnSeparator);
+        }
+        l[6] = sb.toString();
+
+        // Create a date time formatter to display the current date and time in the desired format
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH_mm_ss");
+
+        // Get the current (local) date time
+        LocalDateTime now = LocalDateTime.now();
+
+        // Assign the experiment file name eto be the current (local) date time
+        String fileName = dtf.format(now);
+
+        // Assign a directory path to where the file should be created.
+        String filePath = "src/experiments/";
+
+        // Assign a file type to the experiment file | .csv = for excel/spreadsheets files
+        String fileType = ".csv";
+
+        try {
+            File f = new File(filePath + fileName + fileType);
+
+            PrintWriter writer = new PrintWriter(f);
+
+            for (String s : l) {
+                writer.println(s);
             }
-            sb.append(accuracy).append("%").append(columnSeparator);
+
+            writer.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void indirectEvaluation(ODESolverInterface solver, double h){
+        // Accuracy function that will test the accuracy of our solvers
+        ODEFunctionInterface function = new AccuracyFunction();
+
+        /* Exact solutions of the function
+         * y(0) = 0
+         * y(1) = 0.503346658225,
+         * y(2) = 0.478421766451,
+         * y(5) = 0.237813428537,
+         * y(10) = 0.110790590981
+         * */
+        double[] es = { 0, 0.503346658225, 0.478421766451, 0.237813428537, 0.110790590981 };
+
+        // The times at which function will be evaluated
+        double[] ts = { 0, 1, 2, 5, 10 };
+
+        // Preparing the initial state which should be an empty planets whose initial position and velocity will be a zero vector
+        // Because the function works with a single variable, so will be using the x-axis of the position vector for our comparisons.
+        // But as a matter of fact, the axes of the position should have the same values as the axes of velocity at the end of the calculation
+        // Due to all of the axes starting at 0 and the function evaluating each axis independently of the other axis
+        // Furthermore Verlet actually shouldn't be tested for accuracy as it is NOT an ODE Solver, but a numerical method.
+        DataInterface object = new Planet();
+        object.setPosition(new Vector3d());
+        object.setVelocity(new Vector3d());
+
+        DataInterface[] objects = new DataInterface[]{
+                object
+        };
+        StateInterface y0 = new State(objects);
+
+
+        State[] results = new State[ts.length];
+
+        for(int i = 0; i < ts.length; i++){
+            State[] states = (State[]) solver.solve(function, y0, ts[i], h);
+            results[i] = states[states.length - 1];
+        }
+
+        /*
+         * Current file format/design:
+         * Solver
+         * Constant step size h
+         * Evaluation time: t1  t2  t3  t4
+         * Exact value:     es1 es2 es3 es4
+         * Measured value:  ms1 ms2 ms3 ms4
+         * Absolute error:  ae1 ae2 ae3 ae4
+         * Accuracy:        a1% a2% a3% a4%
+         * */
+
+        String columnSeparator = ",";
+        String[] l = new String[7];
+
+        StringBuilder sb = new StringBuilder();
+        if (solver instanceof Euler) {
+            sb.append("Euler");
+        } else if (solver instanceof Kutta) {
+            sb.append("Kutta");
+        } else {
+            sb.append("Verlet");
+        }
+
+        l[0] = sb.toString();
+
+        l[1] = "Constant step size: h = " + h + columnSeparator;
+
+        sb = new StringBuilder("Evaluation time:" + columnSeparator);
+        for (double t : ts) {
+            sb.append(t).append(columnSeparator);
+        }
+        l[2] = sb.toString();
+
+
+        sb = new StringBuilder("Exact value:" + columnSeparator);
+        for (double e : es) {
+            sb.append(e).append(columnSeparator);
+        }
+        l[3] = sb.toString();
+
+        sb = new StringBuilder("Measured value:" + columnSeparator);
+        for (State s : results) {
+            sb.append(s.getObjects()[0].getPosition().getX()).append(columnSeparator);
+        }
+        l[4] = sb.toString();
+
+        sb = new StringBuilder("Absolute error%:" + columnSeparator);
+        for (int i = 0; i < es.length; i++) {
+            double absoluteError = es[i] - results[i].getObjects()[0].getPosition().getX();
+            absoluteError = Math.abs(absoluteError);
+            sb.append(absoluteError * 100).append("%").append(columnSeparator);
+        }
+        l[5] = sb.toString();
+
+        sb = new StringBuilder("Relative error%:" + columnSeparator);
+        for (int i = 0; i < es.length; i++) {
+            double absoluteError = es[i] - results[i].getObjects()[0].getPosition().getX();
+            absoluteError = Math.abs(absoluteError);
+            double relativeError = absoluteError / Math.abs(results[i].getObjects()[0].getPosition().getX());
+            if (absoluteError == 0){ relativeError = 0; }
+            sb.append(relativeError * 100).append("%").append(columnSeparator);
         }
         l[6] = sb.toString();
 

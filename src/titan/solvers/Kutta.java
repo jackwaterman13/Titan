@@ -48,10 +48,8 @@ public class Kutta implements ODESolverInterface {
         StateInterface[] states = new State[ts.length];
         states[0] = y0;
 
-        double tSum = 0.0;
         for(int i = 1; i < ts.length; i++){
-            tSum += ts[i];
-            states[i] = step(f, tSum, states[i-1], ts[i]-ts[i-1]);
+            states[i] = step(f, ts[i], states[i-1], ts[i]-ts[i-1]);
         }
         return states;
     }
