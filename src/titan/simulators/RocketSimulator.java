@@ -5,6 +5,7 @@ import interfaces.given.ODESolverInterface;
 import interfaces.given.StateInterface;
 import interfaces.given.Vector3dInterface;
 import interfaces.own.DataInterface;
+import titan.lamberts.LambertsProblem;
 import titan.math.Function;
 import titan.math.Vector3d;
 import titan.physics.State;
@@ -82,7 +83,7 @@ public class RocketSimulator {
         Vector3dInterface v0 = new Vector3d();
 
         double tf = 86400 * 365;
-        double h = 86400;
+        double h = 3600;
         State[] states = (State[]) simulator.simulate(new Euler(), p0, v0, tf, h);
         for(int i = 0; i < states.length; i++){
             DataInterface[] objects = states[i].getObjects();

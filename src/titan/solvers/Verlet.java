@@ -2,10 +2,8 @@ package titan.solvers;
 
 import interfaces.given.*;
 import interfaces.own.DataInterface;
-import titan.math.NewtonRaphson;
 import titan.physics.Newton;
 import titan.physics.State;
-import titan.utility.Rocket;
 
 /**
  * Class that implements Verlet integration

@@ -4,9 +4,7 @@ import interfaces.given.RateInterface;
 import interfaces.given.StateInterface;
 import interfaces.given.Vector3dInterface;
 import interfaces.own.DataInterface;
-import titan.math.NewtonRaphson;
 import titan.utility.Rate;
-import titan.utility.Rocket;
 
 public class State implements StateInterface, RateInterface {
 	private final DataInterface[] objects;

@@ -2,7 +2,9 @@ package titan.simulators;
 
 import interfaces.given.*;
 import interfaces.own.DataInterface;
+import titan.lamberts.LambertsProblem;
 import titan.math.Function;
+import titan.math.NewtonsMethod;
 import titan.math.Vector3d;
 import titan.physics.State;
 import titan.solvers.Euler;
@@ -90,54 +92,30 @@ public class ProbeSimulator implements ProbeSimulatorInterface {
      * Descriptions from interface:
      * @param   p0      the starting position of the probe, relative to the earth's position.
      * @param   v0      the starting velocity of the probe, relative to the earth's velocity.
-     * @param   ts      the times at which the states should be output, with ts[0] being the initial time.
-     *
-     * But different return value
-     * @return State array containing entire simulation journey
-     */
-    public StateInterface[] simulate(ODESolverInterface solver, Vector3dInterface p0, Vector3dInterface v0, double ts[]){
-        DataInterface[] objects = InitialState.getInitialState();
-        Vector3dInterface xEarth = objects[3].getPosition();
-        Vector3dInterface vEarth = objects[3].getVelocity();
-        DataInterface probe = new Planet(
-                "Probe",
-                probeMass,
-                0.0,
-                p0.sub(xEarth),
-                v0.sub(vEarth)
-        );
-
-        DataInterface[] included = new DataInterface[objects.length + 1];
-        System.arraycopy(objects, 0, included, 0, objects.length);
-        included[included.length - 1] = probe;
-
-        return solver.solve(function, new State(included), ts);
-    }
-
-    /**
-     * Simulates the universe with the probe included
-     *
-     * @param solver -the solver that should be used to simulate the universe with the probe
-     * Same param descriptions as interface methods:
-     * @param   p0      the starting position of the probe, relative to the earth's position.
-     * @param   v0      the starting velocity of the probe, relative to the earth's velocity.
      * @param   tf      the final time of the evolution.
      * @param   h       the size of step to be taken
-     *
      * But different return value
-     * @return State array representing the entire simulation
+     * @return State array containing entire simulation journey
      */
     public StateInterface[] simulate(ODESolverInterface solver, Vector3dInterface p0, Vector3dInterface v0, double tf, double h){
         DataInterface[] objects = InitialState.getInitialState();
         Vector3dInterface xEarth = objects[3].getPosition();
         Vector3dInterface vEarth = objects[3].getVelocity();
+        Vector3dInterface vProbe = v0.sub(vEarth);
+
         DataInterface probe = new Planet(
                 "Probe",
                 probeMass,
                 0.0,
                 p0.sub(xEarth),
-                v0.sub(vEarth)
+                vProbe
         );
+
+        System.out.println("Earth vel norm: " + vEarth.norm());
+
+        NewtonsMethod newton = new NewtonsMethod(probe);
+        vProbe = newton.getImprovedVelocity(vProbe, tf, h, 3e8);
+        probe.setVelocity(vProbe);
 
         DataInterface[] included = new DataInterface[objects.length + 1];
         System.arraycopy(objects, 0, included, 0, objects.length);
@@ -145,12 +123,12 @@ public class ProbeSimulator implements ProbeSimulatorInterface {
 
         return solver.solve(function, new State(included), tf, h);
     }
+
+
     public static void main(String[] args){
-        /* Position and velocity of probe can be assigned in any way
-         * as long as they fulfill the following constraints:
-         * - p0 norm() <= 6371e3 meters
-         * - v0 norm() <= 6e5    meters/second
-         */
+
+
+
         Vector3dInterface p0 = new Vector3d();
 
         DataInterface[] y0 = InitialState.getInitialState();
@@ -158,10 +136,12 @@ public class ProbeSimulator implements ProbeSimulatorInterface {
         Vector3dInterface pEarth = y0[3].getPosition();
         Vector3dInterface dir = pTitan.sub(pEarth);
 
-        Vector3dInterface v0 = pTitan.mul(3000 / pTitan.norm());
+        Vector3dInterface v0 = dir.mul(3000 / dir.norm());
 
         double tf = 365 * 86400;
         double h = 86400;
+
+
         ProbeSimulator simulator = new ProbeSimulator();
         State[] course = (State[]) simulator.simulate(new Euler(), p0, v0, tf, h);
 
