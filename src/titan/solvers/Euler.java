@@ -14,7 +14,6 @@ import titan.utility.Rate;
  */
 
 public class Euler implements ODESolverInterface {
-    final static Newton newton = new Newton();
     /**
      * Documentation given from the interface:
      * Solve the differential equation by taking multiple steps.
@@ -30,7 +29,7 @@ public class Euler implements ODESolverInterface {
         states[0] = y0;
 
         for(int i = 1; i < ts.length; i++){
-            states[i] = step(f, ts[i], states[i-1], ts[i]-ts[i-1]);
+            states[i] = step(f, ts[i-1], states[i-1], ts[i]-ts[i-1]);
         }
         return states;
     }
@@ -60,7 +59,7 @@ public class Euler implements ODESolverInterface {
         }
         if (fit < states.length){
             double remainingTime = tf % h;
-            states[states.length - 1] = step(f, tf, states[states.length - 2], remainingTime);
+            states[states.length - 1] = step(f, tf - remainingTime, states[states.length - 2], remainingTime);
         }
         return states;
     }

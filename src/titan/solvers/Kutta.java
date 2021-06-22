@@ -1,9 +1,8 @@
 package titan.solvers;
 
-import interfaces.given.ODEFunctionInterface;
-import interfaces.given.ODESolverInterface;
-import interfaces.given.RateInterface;
-import interfaces.given.StateInterface;
+import interfaces.given.*;
+import interfaces.own.DataInterface;
+import titan.math.Vector3d;
 import titan.physics.State;
 import titan.utility.Rate;
 
@@ -110,20 +109,105 @@ public class Kutta implements ODESolverInterface {
     public StateInterface step(ODEFunctionInterface f, double t, StateInterface y, double h){
         Rate r = (Rate) f.call(t, y);
         Rate k1 = r.mul(h);
+        System.out.println("k1 = " + k1.getPosRoc()[0].getX());
 
-        r = (Rate) f.call(t + h/2.0, y.addMul(1.0/2.0, k1));
+        State s = (State) y;
+        DataInterface[] objects = s.getObjects();
+        DataInterface[] assist = new DataInterface[objects.length];
+
+        Vector3dInterface[] v = k1.getPosRoc();
+        Vector3dInterface[] a = k1.getVelRoc();
+        for(int i = 0; i < objects.length; i++){
+            Vector3dInterface pos = objects[i].getPosition();
+            Vector3dInterface vel = objects[i].getVelocity();
+            double[] displacement = { pos.getX() + v[i].getX() / 2, pos.getY() + v[i].getY() / 2, pos.getZ() + v[i].getZ() / 2 };
+            double[] velocity = { vel.getX() + a[i].getX() / 2, vel.getY() + a[i].getY() / 2, vel.getZ() + a[i].getZ() / 2 };
+            assist[i] = objects[i].update(
+                    new Vector3d(displacement),
+                    new Vector3d(velocity)
+            );
+        }
+        s = new State(assist);
+
+        r = (Rate) f.call(t + h/2.0, s);
         Rate k2 = r.mul(h);
+        System.out.println("k2 = " + k2.getPosRoc()[0].getX());
 
-        r = (Rate) f.call(t + h/2.0, y.addMul(1.0/2.0, k2));
+        v = k2.getPosRoc();
+        a = k2.getVelRoc();
+        assist = new DataInterface[objects.length];
+        for(int i = 0; i < objects.length; i++){
+            Vector3dInterface pos = objects[i].getPosition();
+            Vector3dInterface vel = objects[i].getVelocity();
+            double[] displacement = { pos.getX() + v[i].getX() / 2, pos.getY() + v[i].getY() / 2, pos.getZ() + v[i].getZ() / 2 };
+            double[] velocity = { vel.getX() + a[i].getX() / 2, vel.getY() + a[i].getY() / 2, vel.getZ() + a[i].getZ() / 2 };
+            assist[i] = objects[i].update(
+                    new Vector3d(displacement),
+                    new Vector3d(velocity)
+            );
+        }
+        s = new State(assist);
+
+        r = (Rate) f.call(t + h/2.0, s);
         Rate k3 = r.mul(h);
+        System.out.println("k3 = " + k3.getPosRoc()[0].getX());
 
-        r = (Rate) f.call(t + h, y.addMul(1, k3));
+        v = k3.getPosRoc();
+        a = k3.getVelRoc();
+        assist = new DataInterface[objects.length];
+        for(int i = 0; i < objects.length; i++){
+            Vector3dInterface pos = objects[i].getPosition();
+            Vector3dInterface vel = objects[i].getVelocity();
+            double[] displacement = { pos.getX() + v[i].getX(), pos.getY() + v[i].getY(), pos.getZ() + v[i].getZ() };
+            double[] velocity = { vel.getX() + a[i].getX(), vel.getY() + a[i].getY(), vel.getZ() + a[i].getZ() };
+            assist[i] = objects[i].update(
+                    new Vector3d(displacement),
+                    new Vector3d(velocity)
+            );
+        }
+        s = new State(assist);
+
+        r = (Rate) f.call(t + h, s);
         Rate k4 = r.mul(h);
+        System.out.println("k4 = " + k4.getPosRoc()[0].getX());
 
-        Rate finalRoc = k1.addMul(2, k2).addMul(2, k3).add(k4).mul(1.0/6.0);
+        Vector3dInterface[] vK1 = k1.getPosRoc();
+        Vector3dInterface[] vK2 = k2.getPosRoc();
+        Vector3dInterface[] vK3 = k3.getPosRoc();
+        Vector3dInterface[] vK4 = k4.getPosRoc();
 
-        State nextState = (State) y.addMul(1, finalRoc); // -> this adds +step(=1) to period
-        nextState.setPeriod(nextState.getPeriod() - 1 + h);   // hence, new period = current period -step + h
-        return nextState;
+        Vector3dInterface[] aK1 = k1.getVelRoc();
+        Vector3dInterface[] aK2 = k2.getVelRoc();
+        Vector3dInterface[] aK3 = k3.getVelRoc();
+        Vector3dInterface[] aK4 = k4.getVelRoc();
+
+        assist = new DataInterface[objects.length];
+        for(int i = 0; i < objects.length; i++){
+            Vector3dInterface pos = objects[i].getPosition();
+            Vector3dInterface vel = objects[i].getVelocity();
+            double[] displacement = {
+                    pos.getX() + (h / 6) * (vK1[i].getX() + 2 * vK2[i].getX() + 2 * vK3[i].getX() + vK4[i].getX()),
+                    pos.getY() + (h / 6) * (vK1[i].getY() + 2 * vK2[i].getY() + 2 * vK3[i].getY() + vK4[i].getY()),
+                    pos.getY() + (h / 6) * (vK1[i].getZ() + 2 * vK2[i].getZ() + 2 * vK3[i].getZ() + vK4[i].getZ())
+            };
+            double[] velocity = {
+                    vel.getX() + (h / 6) * (aK1[i].getX() + 2 * aK2[i].getX() + 2 * aK3[i].getX() + aK4[i].getX()),
+                    vel.getY() + (h / 6) * (aK1[i].getY() + 2 * aK2[i].getY() + 2 * aK3[i].getY() + aK4[i].getY()),
+                    vel.getY() + (h / 6) * (aK1[i].getZ() + 2 * aK2[i].getZ() + 2 * aK3[i].getZ() + aK4[i].getZ())
+            };
+
+            assist[i] = objects[i].update(
+                    new Vector3d(displacement),
+                    new Vector3d(velocity)
+            );
+        }
+        System.out.println("y[n+1] = " + assist[0].getPosition().getX());
+        System.out.println();
+
+        State y0 = (State) y;
+        s = new State(assist);
+        s.setPrevious(y0);
+        s.setPeriod(y0.getPeriod() + h);
+        return s;
     }
 }

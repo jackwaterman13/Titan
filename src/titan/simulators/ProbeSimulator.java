@@ -89,32 +89,46 @@ public class ProbeSimulator implements ProbeSimulatorInterface {
      * Simulates the universe including the probe
      *
      * @param solver -the solver that should be used to simulate the universe with the probe
-     * Descriptions from interface:
-     * @param   p0      the starting position of the probe, relative to the earth's position.
-     * @param   v0      the starting velocity of the probe, relative to the earth's velocity.
      * @param   tf      the final time of the evolution.
      * @param   h       the size of step to be taken
      * But different return value
      * @return State array containing entire simulation journey
      */
-    public StateInterface[] simulate(ODESolverInterface solver, Vector3dInterface p0, Vector3dInterface v0, double tf, double h){
+    public StateInterface[] simulate(ODESolverInterface solver, double tf, double h){
         DataInterface[] objects = InitialState.getInitialState();
         Vector3dInterface xEarth = objects[3].getPosition();
-        Vector3dInterface vEarth = objects[3].getVelocity();
-        Vector3dInterface vProbe = new Vector3d(5431.785297590439,-29335.365587332988,0.6580991559410286);
+        Vector3dInterface vProbe = new Vector3d (27805.720809264523,-36002.925093637044,-1020.3072795635245);
+
+        /* Velocity of probe gotten from Newton's method using Euler's solver
+         * ==================================================================
+         * Probe setting:
+         * mass = 1.5e5
+         * p0 = earth pos
+         *
+         * Time frame setting:
+         * final time Tf = 1 year = 365 * 86400
+         * step size h = 86400
+         *
+         * Console output:
+         * Found velocity that fulfills condition!
+         * Distance to Titan: 93949.14425396464 is less than 100000.0
+         * Found velocity: 45501.755482239765
+         * Vector distance: (14105.201171875,-22886.297607421875,-90020.56647109985)
+         * Vector velocity: (27805.720809264523,-36002.925093637044,-1020.3072795635245)
+         */
 
         DataInterface probe = new Planet(
                 "Probe",
                 probeMass,
                 0.0,
-                p0.add(xEarth),
+                xEarth,
                 vProbe
         );
 
-        System.out.println("Earth vel norm: " + vEarth.norm());
-
-        NewtonsMethod newton = new NewtonsMethod(probe);
-        vProbe = newton.getImprovedVelocity(vProbe, tf, h, 1e8);
+        /* Uncomment lines below if you would like to retry finding a velocity such that the probe can reach Titan in the given time frame
+         * NewtonsMethod newton = new NewtonsMethod(probe);
+         * vProbe = newton.getImprovedVelocity(vProbe, tf, h, 1e5);
+         */
         probe.setVelocity(vProbe);
 
         DataInterface[] included = new DataInterface[objects.length + 1];
@@ -126,15 +140,11 @@ public class ProbeSimulator implements ProbeSimulatorInterface {
 
 
     public static void main(String[] args){
-        Vector3dInterface p0 = new Vector3d();
-        Vector3dInterface v0 = new Vector3d();
-
         double tf = 365 * 86400;
         double h = 86400;
 
-
         ProbeSimulator simulator = new ProbeSimulator();
-        State[] course = (State[]) simulator.simulate(new Euler(), p0, v0, tf, h);
+        State[] course = (State[]) simulator.simulate(new Euler(), tf, h);
 
         for(int i = 0; i < course.length; i++){
             DataInterface[] objects = course[i].getObjects();

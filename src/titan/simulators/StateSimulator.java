@@ -6,6 +6,8 @@ import interfaces.own.DataInterface;
 import titan.math.Function;
 import titan.physics.State;
 import titan.solvers.Euler;
+import titan.solvers.Kutta;
+import titan.solvers.Verlet;
 import titan.utility.InitialState;
 import titan.utility.Rocket;
 
@@ -58,13 +60,16 @@ public class StateSimulator {
 
     public static void main (String[] args){
         ODESolverInterface solver = new Euler();
-        double tf = 86400 * 365;
-        double h = 86400;
+        double tf = 60 * 60 * 24 * 365;
+        double h = 30;
 
         StateSimulator simulator = new StateSimulator();
         State[] states = (State[]) simulator.runSolver(solver, tf, h);
         for(int i = 0; i < states.length; i++){
-            System.out.println(states[i].toString());
+            DataInterface target = states[i].getObjects()[3];
+            System.out.println(target.getName());
+            System.out.println("Pos: " + target.getPosition().toString());
+            System.out.println("Vel: " + target.getVelocity().toString());
             System.out.println();
         }
     }

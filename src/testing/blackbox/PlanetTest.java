@@ -145,7 +145,7 @@ public class PlanetTest {
      */
     @Test public void testResizePosition(){
         GuiObjectInterface planet = new Planet(null, 0, 0, new Vector3d(1.0, 0.0, 0.0), null);
-        Vector3dInterface x = planet.resizePosition(5.0);
+        Vector3dInterface x = planet.guiDisplacement(5.0);
         assertEquals(5.0, x.getX());
         assertEquals(0.0, x.getY());
         assertEquals(0.0, x.getZ());

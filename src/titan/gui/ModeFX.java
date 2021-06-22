@@ -53,7 +53,7 @@ public class ModeFX extends Application implements GuiInterface {
 
     @Override
     public void start(Stage stage){
-        prepareApplication(new Euler(), 86400, 3600);
+        prepareApplication(new Euler(), 86400 * 365, 86400);
 
         Scene scene = createScene(resolution);
         setBackground(scene);
@@ -123,7 +123,7 @@ public class ModeFX extends Application implements GuiInterface {
         for(int i = 0; i < objects.length; i++){
             int length = i * scale;
             GuiObjectInterface obj = (Planet) objects[i];
-            Vector3dInterface position = obj.resizePosition(length);
+            Vector3dInterface position = obj.guiDisplacement(length);
 
             Shape3D shape = new Sphere(radius);
             shape.setTranslateX(position.getX());
@@ -179,7 +179,7 @@ public class ModeFX extends Application implements GuiInterface {
                 for(int j = 0; j < objects.length; j++){
                     FxObject fxObj = fxObjects.get(j);
                     if (fxObj.getShape().equals(n) && fxObj.getID().equals(obj.getName())){
-                        Vector3dInterface position = obj.resizePosition(length);
+                        Vector3dInterface position = obj.guiDisplacement(length);
                         fxObj.update(position);
                     }
                 }

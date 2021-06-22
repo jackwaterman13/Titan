@@ -43,71 +43,38 @@ import titan.shapes.Box;
 public class Rocket extends Planet {
     final static double mass_shuttle = 7.8e4;
     final static double mass_lander  = 6e3;
-    static double mass_spent;
-    double mass_fuel = 6e5;
+    double mass_fuel = 0;
 
     final double thrust_max = 3e7;
     final double v_exhaust = 4e3;
 
-
-    public Rocket(){ }
-    public Rocket(double fuelMass, Vector3dInterface pos, Vector3dInterface vel){
-        mass_fuel = fuelMass;
+    public Rocket(Vector3dInterface pos, Vector3dInterface vel){
         setPosition(pos);
         setVelocity(vel);
         setName("Rocket");
     }
 
+    public Rocket(double fuelMass, Vector3dInterface pos, Vector3dInterface vel){
+        mass_fuel = fuelMass;
+        setPosition(pos);
+        setVelocity(vel);
+        setName("Rocket");
+        double dm = calculateMassLoss(vel.norm(), 0, v_exhaust, getMass());
+        mass_fuel += dm;
 
-    /**
-     * Calculates the thrust given the effective exhaustive velocity, delta mass and - time
-     *
-     * @param v_ex - effective exhaustive velocity; v[exhaust]
-     * @param dm - delta mass; the mass part of the fuel burn rate
-     * @param dt - delta time; the time part of the fuel burn rate
-     * @return A double representing the thrust the engine will exhibit under these circumstances
-     */
-    public static double calculateThrust(double v_ex, double dm, double dt){ return -v_ex * dm / dt; }
-
-    /**
-     * Calculates the velocity of the rocket through v[final] = v0 + v[exhaust] * ln(m0 / dm)
-     * Futhermore, assumes v0 = 0 to only return the dv
-     *
-     * @param v_ex - effective exhaustive velocity
-     * @param m0 - initial mass
-     * @param dm - change in mass
-     * @return The velocity change that will be added to v0 to get v[final]
-     */
-    public static double calculateVelocity(double v_ex, double m0, double dm){
-        return v_ex * Math.log(m0 / (m0+dm));
+        if (mass_fuel < 0){ throw new RuntimeException("Initial fuel mass wasn't enough for desired launch velocity!"); }
     }
 
-    /**
-     * Calculates the change in mass required to achieve the thrust
-     *
-     * @param F_thrust - the thrust we want
-     * @param v_ex - the effective exhaustive velocity of the fuel used
-     * @param dt - the delta time we want to apply this thrust at
-     * @return The minimum change in mass required to achieve the thrusts
-     */
-    public static double calculateMassLoss(double F_thrust, double v_ex, double dt){
-        return F_thrust * dt / -v_ex;
+    public static double calculateMassLoss(double vFinal, double v0, double v_exhaust, double m0){
+        // vFinal = v0 + vEx ln (m0 / mFinal)
+        // vFinal - v0 = vEx ln (m0 / mFinal)
+        // (vFinal - v0) / vEx = ln (m0 / mFinal)
+        // e^( (vFinal - v0) / vEx ) = m0 / mFinal
+        // mFinal = m0 / e^( (vFinal - v0) / vEx )
+        // dm = m0 - mFinal
+        double mFinal = m0 / Math.exp((vFinal - v0) / v_exhaust);
+        return mFinal - m0;
     }
-
-    /**
-     * Calculates the mass loss required to achieve this relative velocity
-     *
-     * @param v - the relative velocity the rocket should have
-     * @return The required mass loss that the rocket needs to hit this relative velocity
-     */
-    public double calculateMassLoss(Vector3dInterface v){
-        /* v[final] = v0 + v[exhaust] * ln(m0 / dm)
-         * dm = m0 / e^dv/v[ex]
-         */
-        Vector3dInterface dv = v.sub(getVelocity());
-        return getMass() / Math.exp(dv.norm() / v_exhaust);
-    }
-    public double getFuel(){ return mass_fuel; }
 
     @Override
     public double getMass() { return mass_shuttle + mass_lander + mass_fuel; }
@@ -117,6 +84,8 @@ public class Rocket extends Planet {
 
     @Override
     public Rocket update(Vector3dInterface x, Vector3dInterface v){
-        return new Rocket(mass_fuel, x, v);
+        Rocket r = new Rocket(x, v);
+        r.mass_fuel = mass_fuel;
+        return r;
     }
 }

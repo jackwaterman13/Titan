@@ -10,9 +10,12 @@ import titan.physics.State;
 import titan.utility.Rate;
 
 public class Function implements ODEFunctionInterface {
-    Newton newton = new Newton();
+
     public RateInterface call(double t, StateInterface y){
+        Newton newton = new Newton();
+
         State s = (State) y;
+
         DataInterface[] objects = s.getObjects();
         Vector3dInterface[] v = new Vector3dInterface[objects.length];
         Vector3dInterface[] a = new Vector3dInterface[objects.length];
