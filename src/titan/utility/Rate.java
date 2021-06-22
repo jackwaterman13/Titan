@@ -4,6 +4,8 @@ import interfaces.given.RateInterface;
 import interfaces.given.Vector3dInterface;
 import titan.math.Vector3d;
 
+import java.math.BigDecimal;
+
 /**
  * Supportive class that holds the average dy/dt for each planet
  */

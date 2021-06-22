@@ -6,6 +6,8 @@ import titan.math.Vector3d;
 import titan.physics.State;
 import titan.utility.Rate;
 
+import java.util.Arrays;
+
 /**
  * Class that is coding representation of Runge-Kutta 4th order.
  * The local truncation error of RK4 is of order Ot(h^5), giving a global truncation error of order O(h^4).
@@ -129,7 +131,7 @@ public class Kutta implements ODESolverInterface {
         }
         s = new State(assist);
 
-        r = (Rate) f.call(t + h/2.0, s);
+        r = (Rate) f.call(t + h/ 2, s);
         Rate k2 = r.mul(h);
         System.out.println("k2 = " + k2.getPosRoc()[0].getX());
 
@@ -148,7 +150,7 @@ public class Kutta implements ODESolverInterface {
         }
         s = new State(assist);
 
-        r = (Rate) f.call(t + h/2.0, s);
+        r = (Rate) f.call(t + h / 2, s);
         Rate k3 = r.mul(h);
         System.out.println("k3 = " + k3.getPosRoc()[0].getX());
 
@@ -186,14 +188,14 @@ public class Kutta implements ODESolverInterface {
             Vector3dInterface pos = objects[i].getPosition();
             Vector3dInterface vel = objects[i].getVelocity();
             double[] displacement = {
-                    pos.getX() + (h / 6) * (vK1[i].getX() + 2 * vK2[i].getX() + 2 * vK3[i].getX() + vK4[i].getX()),
-                    pos.getY() + (h / 6) * (vK1[i].getY() + 2 * vK2[i].getY() + 2 * vK3[i].getY() + vK4[i].getY()),
-                    pos.getY() + (h / 6) * (vK1[i].getZ() + 2 * vK2[i].getZ() + 2 * vK3[i].getZ() + vK4[i].getZ())
+                    pos.getX() + (1.0 / 6.0) * (vK1[i].getX() + 2 * vK2[i].getX() + 2 * vK3[i].getX() + vK4[i].getX()),
+                    pos.getY() + (1.0 / 6.0) * (vK1[i].getY() + 2 * vK2[i].getY() + 2 * vK3[i].getY() + vK4[i].getY()),
+                    pos.getY() + (1.0 / 6.0) * (vK1[i].getZ() + 2 * vK2[i].getZ() + 2 * vK3[i].getZ() + vK4[i].getZ())
             };
             double[] velocity = {
-                    vel.getX() + (h / 6) * (aK1[i].getX() + 2 * aK2[i].getX() + 2 * aK3[i].getX() + aK4[i].getX()),
-                    vel.getY() + (h / 6) * (aK1[i].getY() + 2 * aK2[i].getY() + 2 * aK3[i].getY() + aK4[i].getY()),
-                    vel.getY() + (h / 6) * (aK1[i].getZ() + 2 * aK2[i].getZ() + 2 * aK3[i].getZ() + aK4[i].getZ())
+                    vel.getX() + (1.0 / 6.0) * (aK1[i].getX() + 2 * aK2[i].getX() + 2 * aK3[i].getX() + aK4[i].getX()),
+                    vel.getY() + (1.0 / 6.0) * (aK1[i].getY() + 2 * aK2[i].getY() + 2 * aK3[i].getY() + aK4[i].getY()),
+                    vel.getY() + (1.0 / 6.0) * (aK1[i].getZ() + 2 * aK2[i].getZ() + 2 * aK3[i].getZ() + aK4[i].getZ())
             };
 
             assist[i] = objects[i].update(

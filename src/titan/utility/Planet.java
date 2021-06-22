@@ -155,7 +155,7 @@ public class Planet implements DataInterface, GuiObjectInterface {
      * @return A rescaled vector to the length size
      */
     public Vector3dInterface guiDisplacement(double size){
-        return position.mul(size / position.norm());
+        return position.mul(1/ size);
     }
 
 

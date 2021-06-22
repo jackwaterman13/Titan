@@ -49,7 +49,7 @@ public class ModeSwing extends Textures implements GuiInterface, SwingInterface 
     private enum PlayStyle { Static, Auto };
 
     private Mode mode = Mode.Universe;
-    private PlayStyle style = PlayStyle.Static;
+    private PlayStyle style = PlayStyle.Auto;
 
     private State[] justUniverse, probeUniverse, rocketUniverse;
 
@@ -57,8 +57,8 @@ public class ModeSwing extends Textures implements GuiInterface, SwingInterface 
     private int playspeed = 1000;
 
     public static void main(String[] args) {
-        ModeSwing gui = new ModeSwing("Swing V1.0", new Dimension(1200, 720));
-        gui.prepareApplication(new Euler(), 86400 * 45, 1800);
+        ModeSwing gui = new ModeSwing("Swing V1.0", new Dimension(1920, 1080));
+        gui.prepareApplication(new Euler(), 86400 * 365, 86400);
     }
 
     /**
@@ -225,9 +225,7 @@ public class ModeSwing extends Textures implements GuiInterface, SwingInterface 
         int radius = 30;
         for (int i = 0; i < objects.length; i++) {
             obj = (Planet) objects[i];
-            if (i == 0){ displacement = new Vector3d(); }
-            else if (i == 11){ displacement = obj.guiDisplacement(3 * constant); }
-            else{ displacement = obj.guiDisplacement(i * constant); }
+            displacement = obj.guiDisplacement(3e9);
 
             System.out.println(obj.getName() + " | "+ displacement.toString());
 

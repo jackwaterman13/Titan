@@ -55,6 +55,8 @@ public class KuttaTest {
 
         assertEquals(1,      results[0].getObjects()[0].getPosition().getX());   // t = 0
         assertEquals(1.04428,results[1].getObjects()[0].getPosition().getX());   // t = 0.2
+
+        /* Can not hold true due to roundoff error */
         assertEquals(1.090520718, results[2].getObjects()[0].getPosition().getX());// t = 0.4
     }
 }
